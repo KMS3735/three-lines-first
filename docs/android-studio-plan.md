@@ -10,12 +10,12 @@ Android Studio에서 **New Project → Empty Views Activity**로 만듭니다. �
 
 | 항목 | 값 |
 | --- | --- |
-| Name | ThreeLinesFirst (앱 표시 이름은 `세 줄 먼저`) |
-| Package name | `com.kms3735.threelinesfirst` |
-| Save location | 이 저장소 폴더 (`three-lines-first/`) |
-| Language | Java |
-| Minimum SDK | API 26 (Android 8.0) |
-| Build configuration language | Kotlin DSL (`build.gradle.kts`, Android Studio 기본값) |
+| 📛 **Name** | ThreeLinesFirst (앱 표시 이름 `세 줄 먼저`) |
+| 📦 **Package name** | `com.kms3735.threelinesfirst` |
+| 📁 **Save location** | 이 저장소 폴더 `three-lines-first/` |
+| ☕ **Language** | Java |
+| 📱 **Minimum SDK** | API 26 (Android 8.0) |
+| 🛠️ **Build configuration** | Kotlin DSL (`build.gradle.kts`, 기본값) |
 
 - Minimum SDK 26: 알림 채널(Notification Channel)을 조건문 없이 쓸 수 있고, 국내 사용 기기 대부분을 포함합니다.
 - Target/Compile SDK는 Android Studio가 제안하는 최신 버전을 그대로 씁니다.
@@ -101,10 +101,10 @@ String key = BuildConfig.GEMINI_API_KEY;
 
 | 권한 | 쓰는 곳 | 요청 시점 |
 | --- | --- | --- |
-| `CAMERA` | 안내문 촬영 | 촬영 화면에 처음 들어갈 때 (런타임 요청) |
-| `INTERNET` | Gemini API 호출 | 설치 시 자동 |
-| `POST_NOTIFICATIONS` | 마감일 알림 (Android 13 이상) | 처음 알림을 켤 때 (런타임 요청) |
-| `RECEIVE_BOOT_COMPLETED` | 재부팅 후 알림 다시 예약 | 설치 시 자동 |
+| 📷 **`CAMERA`** | 안내문 촬영 | 촬영 화면에 처음 들어갈 때 (런타임 요청) |
+| 🌐 **`INTERNET`** | Gemini API 호출 | 설치 시 자동 |
+| 🔔 **`POST_NOTIFICATIONS`** | 마감일 알림 (Android 13 이상) | 처음 알림을 켤 때 (런타임 요청) |
+| 🔄 **`RECEIVE_BOOT_COMPLETED`** | 재부팅 후 알림 다시 예약 | 설치 시 자동 |
 
 달력 등록, 전화 걸기, 공유는 모두 암시적 인텐트로 다른 앱에 맡기므로 **따로 권한이 필요 없습니다.**
 
@@ -116,14 +116,14 @@ String key = BuildConfig.GEMINI_API_KEY;
 
 ## 5. 화면 구성
 
-| 화면 | Activity | 레이아웃 | 주요 위젯 |
-| --- | --- | --- | --- |
-| 개인정보 동의 | `ConsentActivity` | `activity_consent.xml` | 전송 범위 그림, 동의 버튼 |
-| ① 안내문 목록 | `MainActivity` | `activity_main.xml`, `item_notice.xml` | RecyclerView + CardView, 촬영 버튼 |
-| ② 촬영 안내 | `CaptureActivity` | `activity_capture.xml` | CameraX `PreviewView` + 가이드 틀 오버레이, 인식 결과 확인 |
-| ③ 세 줄 요약 | `ResultActivity` | `activity_result.xml` | 세 줄 카드, 경고, 체크박스, 대조 배지, 원문 사진 |
-| ④ 행동 연결 | `ResultActivity` 아래쪽 | 같은 레이아웃 | 읽어주기 · 달력 · 전화 · 공유 버튼 |
-| 설정 | `SettingsActivity` | `activity_settings.xml` | 쉬운 말, 큰 글씨, 사진 보관, 알림 스위치 |
+| 화면 | Activity · 레이아웃 | 주요 위젯 |
+| --- | --- | --- |
+| 🔐 **개인정보 동의** | `ConsentActivity`<br>`activity_consent.xml` | 전송 범위 그림, 동의 버튼 |
+| 📋 **① 안내문 목록** | `MainActivity`<br>`activity_main.xml` · `item_notice.xml` | RecyclerView + CardView, 촬영 버튼 |
+| 📷 **② 촬영 안내** | `CaptureActivity`<br>`activity_capture.xml` | CameraX `PreviewView` + 가이드 틀<br>인식 결과 확인 |
+| 📝 **③ 세 줄 요약** | `ResultActivity`<br>`activity_result.xml` | 세 줄 카드, 경고, 체크박스<br>대조 배지, 원문 사진 |
+| 👉 **④ 행동 연결** | `ResultActivity` 아래쪽<br>같은 레이아웃 | 읽어주기 · 달력 · 전화 · 공유 버튼 |
+| ⚙️ **설정** | `SettingsActivity`<br>`activity_settings.xml` | 쉬운 말, 큰 글씨, 사진 보관, 알림 스위치 |
 
 **화면 이동 흐름**
 
@@ -178,14 +178,14 @@ app/src/main/java/com/kms3735/threelinesfirst/
 
 | 단계 | 클래스 | 구현 방법 | 스레드 |
 | --- | --- | --- | --- |
-| 1. 촬영 | `CaptureActivity` | CameraX `ImageCapture`로 앱 내부 저장소에 JPG 저장 | CameraX 내부 |
-| 2. 글자 인식 | `OcrHelper` | `TextRecognition.getClient(new KoreanTextRecognizerOptions.Builder().build())` | ML Kit `Task` 콜백 |
-| 3. 인식 결과 확인 | `CaptureActivity` | 인식된 글자가 너무 적으면(예: 30자 미만) 다시 찍기 안내, 요약으로 넘어가지 않음 | 메인 |
-| 4. 개인정보 가림 | `PrivacyMasker` | 주민등록번호, 개인 휴대전화(010), 계좌번호, 주소, "성명:" 뒤 이름을 `●●●`로 치환 | 메인 (짧은 문자열) |
-| 5. AI 요약 | `SummaryClient` | Retrofit으로 Gemini `generateContent` 호출, JSON 응답 고정 | Retrofit `enqueue` |
-| 6. 형식 검사 | `SummaryClient` | 필수 필드가 없거나 비면 1회 재요청 | 콜백 |
-| 7. 날짜·금액 대조 | `Verifier` | 원문·요약의 날짜와 금액을 정규화해 비교, 불일치 시 1회 재요약 후 경고 배지 | 콜백 |
-| 8. 저장과 표시 | `NoticeDao`, `ResultActivity` | Room에 저장 후 `Handler`로 화면 표시, 마감일 알림 예약 | 저장은 백그라운드, 표시는 메인 |
+| 1️⃣ **촬영** | `CaptureActivity` | CameraX `ImageCapture`로 내부 저장소에 JPG 저장 | CameraX 내부 |
+| 2️⃣ **글자 인식** | `OcrHelper` | ML Kit `KoreanTextRecognizerOptions`로 인식 | ML Kit 콜백 |
+| 3️⃣ **인식 결과 확인** | `CaptureActivity` | 글자가 너무 적으면(30자 미만) 다시 찍기 안내 | 메인 |
+| 4️⃣ **개인정보 가림** | `PrivacyMasker` | 주민번호 · 휴대전화(010) · 계좌 · 주소 · "성명:" 뒤 이름을 `●●●`로 치환 | 메인 |
+| 5️⃣ **AI 요약** | `SummaryClient` | Retrofit으로 Gemini `generateContent` 호출, JSON 응답 고정 | Retrofit `enqueue` |
+| 6️⃣ **형식 검사** | `SummaryClient` | 필수 필드가 없거나 비면 1회 재요청 | 콜백 |
+| 7️⃣ **날짜·금액 대조** | `Verifier` | 정규화해 비교, 불일치 시 1회 재요약 후 경고 배지 | 콜백 |
+| 8️⃣ **저장과 표시** | `NoticeDao`<br>`ResultActivity` | Room에 저장 후 `Handler`로 화면 표시, 알림 예약 | 저장 백그라운드<br>표시 메인 |
 
 ### Gemini API 호출
 
@@ -219,10 +219,10 @@ public interface GeminiApi {
 
 ### 날짜·금액 대조 규칙
 
-| 원문 표기 | 정규화 결과 |
-| --- | --- |
-| `2026. 10. 31.`, `2026-10-31`, `10월 31일` | `2026-10-31` (연도가 없으면 촬영 연도, 지난 날짜면 다음 해) |
-| `152,000원`, `152000원`, `15만 2천원` | `152000` |
+| | 원문 표기 | 정규화 결과 |
+| :---: | --- | --- |
+| 📅 | `2026. 10. 31.` · `2026-10-31` · `10월 31일` | **`2026-10-31`**<br>연도가 없으면 촬영 연도, 지난 날짜면 다음 해 |
+| 💰 | `152,000원` · `152000원` · `15만 2천원` | **`152000`** |
 
 요약에 나온 날짜·금액이 모두 원문 목록 안에 있으면 통과입니다. 원문에 날짜가 여러 개면 "까지", "마감", "기한" 주변 날짜를 마감일 후보로 우선 고르고, 그래도 불확실하면 후보를 보여 주고 사용자가 고르게 합니다.
 
@@ -232,10 +232,12 @@ public interface GeminiApi {
 
 Room은 SQLite 위에서 동작하는 라이브러리로, `SQLiteOpenHelper` 대신 Entity·DAO·Database 세 가지로 나눠 저장 구조를 관리합니다.
 
-| Entity (테이블) | 주요 필드 | 내용 |
+| Entity | 담는 내용 | 주요 필드 |
 | --- | --- | --- |
-| `Notice` (`notice`) | id, title, maskedText, imagePath, line1What, line2Todo, line3WhenWhere, warning, deadline, amount, phone, verified, createdAt | 안내문 한 건, 세 줄 요약, 대조 결과 |
-| `Todo` (`todo`) | id, noticeId, content, done | 할 일 체크박스 |
+| 📄 **`Notice`** | 안내문 정보 | `title` · `maskedText` · `imagePath` · `createdAt` |
+| | 세 줄 요약 | `line1What` · `line2Todo` · `line3WhenWhere` · `warning` |
+| | 대조 결과 | `deadline` · `amount` · `phone` · `verified` |
+| ☑️ **`Todo`** | 할 일 체크박스 | `noticeId` · `content` · `done` |
 
 ```java
 @Dao
@@ -282,36 +284,36 @@ Retrofit(`enqueue`)과 ML Kit(`Task` 콜백)은 라이브러리가 알아서 백
 
 **SharedPreferences**
 
-| 키 | 값 |
+| 키 | 저장하는 값 |
 | --- | --- |
-| `consent_agreed` | 개인정보 동의 여부 |
-| `easy_mode` | 쉬운 말 모드 |
-| `large_text` | 큰 글씨 모드 |
-| `keep_photo` | 원문 사진 보관 여부 |
-| `daily_request_count`, `daily_request_date` | 하루 AI 요청 횟수 제한 |
+| 🔐 **`consent_agreed`** | 개인정보 동의 여부 |
+| 🙋 **`easy_mode`** | 쉬운 말 모드 |
+| 🔠 **`large_text`** | 큰 글씨 모드 |
+| 🖼️ **`keep_photo`** | 원문 사진 보관 여부 |
+| 🔢 **`daily_request_count`**<br>**`daily_request_date`** | 하루 AI 요청 횟수 제한 |
 
 ## 9. 개발 순서
 
 기획서의 범위 구분(필수 → 추가 → 향후)대로, 정확성 장치가 들어간 핵심 흐름을 먼저 완성합니다.
 
-| 단계 | 범위 | 할 일 | 완료 기준 |
-| --- | --- | --- | --- |
-| 0 | 준비 | 프로젝트 생성, 의존성·권한 추가, API 키 설정, 실제 안내문 샘플 5종 수집 | 빈 앱이 실제 기기에서 실행됨 |
-| 1 | 필수 | 촬영 안내 화면, CameraX 촬영, ML Kit 글자 인식, 인식 결과 확인 | 샘플 5종 모두 글자가 추출됨 |
-| 2 | 필수 | `PrivacyMasker` + 단위 테스트, 개인정보 동의 화면 | 테스트 문장의 주민번호·계좌·휴대전화가 모두 가려짐 |
-| 3 | 필수 | Gemini 호출, JSON 형식 검사, 세 줄 카드·경고·체크박스 화면 | 샘플 5종이 세 줄 형식으로 표시됨 |
-| 4 | 필수 | `Verifier` + 단위 테스트, 재요약과 경고 배지, 원문 나란히 보기 | 날짜를 일부러 틀린 요약에 경고 배지가 붙음 |
-| 5 | 필수 | Room 저장, 안내문 목록 화면 | 앱을 껐다 켜도 목록과 체크 상태가 남아 있음 |
-| 6 | 추가 | 읽어주기, 달력 등록, 전화 걸기, 가족에게 보내기, 마감일 알림 | 버튼마다 해당 앱이 열리고, 알림이 예약됨 |
-| 7 | 추가 | 쉬운 말·큰 글씨 모드, "이해가 안 돼요" 재요약, Firebase 가족 공유 | 설정이 모든 문서에 적용됨 |
-| 8 | 마무리 | 샘플로 정확도 점검, 접근성 점검, 서명된 APK 빌드 | 실기기에 APK를 설치해 전체 흐름이 동작함 |
+| 단계 | 범위 | 할 일 | ✅ 완료 기준 |
+| :---: | :---: | --- | --- |
+| 0️⃣ | 🧰 준비 | 프로젝트 생성, 의존성·권한 추가<br>API 키 설정, 실제 안내문 샘플 5종 수집 | 빈 앱이 실제 기기에서 실행됨 |
+| 1️⃣ | 🟦 필수 | 촬영 안내 화면, CameraX 촬영<br>ML Kit 글자 인식, 인식 결과 확인 | 샘플 5종 모두 글자가 추출됨 |
+| 2️⃣ | 🟦 필수 | `PrivacyMasker` + 단위 테스트<br>개인정보 동의 화면 | 주민번호·계좌·휴대전화가 모두 가려짐 |
+| 3️⃣ | 🟦 필수 | Gemini 호출, JSON 형식 검사<br>세 줄 카드·경고·체크박스 화면 | 샘플 5종이 세 줄 형식으로 표시됨 |
+| 4️⃣ | 🟦 필수 | `Verifier` + 단위 테스트<br>재요약과 경고 배지, 원문 나란히 보기 | 날짜를 틀린 요약에 경고 배지가 붙음 |
+| 5️⃣ | 🟦 필수 | Room 저장, 안내문 목록 화면 | 앱을 다시 켜도 목록과 체크 상태 유지 |
+| 6️⃣ | 🟧 추가 | 읽어주기, 달력 등록, 전화 걸기<br>가족에게 보내기, 마감일 알림 | 버튼마다 해당 앱이 열리고 알림 예약 |
+| 7️⃣ | 🟧 추가 | 쉬운 말·큰 글씨 모드, "이해가 안 돼요"<br>Firebase 가족 공유 | 설정이 모든 문서에 적용됨 |
+| 8️⃣ | 🏁 마무리 | 샘플로 정확도·접근성 점검<br>서명된 APK 빌드 | 실기기에서 전체 흐름이 동작함 |
 
 ## 10. 테스트와 빌드
 
 | 종류 | 방법 |
 | --- | --- |
-| 단위 테스트 | `app/src/test/`에 `PrivacyMaskerTest`, `VerifierTest` 작성, Android Studio에서 클래스 옆 ▶ 실행 |
-| 실제 기기 테스트 | 휴대폰 **개발자 옵션 → USB 디버깅**을 켜고 USB 연결, 상단 기기 목록에서 선택 후 Run |
-| 에뮬레이터 | 화면 배치와 설정 확인용 (카메라 촬영과 글자 인식은 실제 기기 권장) |
-| 로그 확인 | **Logcat**에서 `SummaryClient`, `Verifier` 태그로 AI 응답과 대조 결과 확인 |
-| 시연용 APK | **Build → Generate Signed App Bundle / APK → APK**, 만든 keystore 파일은 Git에 올리지 않음 (`.gitignore`에 `*.jks` 포함) |
+| 🧪 **단위 테스트** | `app/src/test/`에 `PrivacyMaskerTest`, `VerifierTest` 작성<br>클래스 옆 ▶ 버튼으로 실행 |
+| 📱 **실제 기기 테스트** | 휴대폰 **개발자 옵션 → USB 디버깅**을 켜고 USB 연결<br>상단 기기 목록에서 선택 후 Run |
+| 💻 **에뮬레이터** | 화면 배치와 설정 확인용<br>카메라 촬영과 글자 인식은 실제 기기 사용 |
+| 🔍 **로그 확인** | **Logcat**에서 `SummaryClient`, `Verifier` 태그로 AI 응답과 대조 결과 확인 |
+| 📦 **APK 빌드** | **Build → Generate Signed App Bundle / APK → APK**<br>keystore 파일은 Git에 올리지 않음 (`*.jks`는 `.gitignore`에 포함) |

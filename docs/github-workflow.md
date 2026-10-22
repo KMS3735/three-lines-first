@@ -32,9 +32,9 @@ Android Studio 프로젝트를 저장소 최상위에 두어, 저장소를 클�
 
 | 파일 | 이유 |
 | --- | --- |
-| `local.properties` | Gemini API 키 보관 |
-| `google-services.json` | Firebase 프로젝트 설정 |
-| `*.jks`, `*.keystore` | APK 서명 키 |
-| 실제 안내문 원본 사진 | 이름, 주소 등 개인정보 포함. 문서에는 개인정보를 가린 사진만 사용 |
+| 🔑 **`local.properties`** | Gemini API 키 보관 |
+| 🔥 **`google-services.json`** | Firebase 프로젝트 설정 |
+| ✍️ **`*.jks` · `*.keystore`** | APK 서명 키 |
+| 🖼️ **실제 안내문 원본 사진** | 이름, 주소 등 개인정보 포함<br>문서에는 개인정보를 가린 사진만 사용 |
 
 위 파일은 `.gitignore`로 제외합니다.
