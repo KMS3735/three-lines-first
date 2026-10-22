@@ -36,6 +36,10 @@ dependencies {
     // 글자 인식 (한국어, 기기 내 처리)
     implementation("com.google.mlkit:text-recognition-korean:16.0.1")
 
+    // 저장 (Week05 Room)
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+
     // 통신
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
@@ -50,6 +54,7 @@ dependencies {
 ```
 
 - 버전은 작성 시점 기준입니다. Android Studio의 **노란 밑줄 경고 → 최신 버전으로 변경**을 눌러 올려도 됩니다.
+- Room: Week05 자료에는 `ksp` 플러그인 설정도 있지만, 이 앱은 Java로만 작성하므로 `annotationProcessor` 한 줄이면 됩니다. Kotlin 파일에 Room을 쓸 때만 `ksp`를 추가합니다.
 - Firebase는 추가 범위입니다. 필수 범위를 만들 때는 Firebase 줄과 `google-services` 플러그인을 빼고 시작해도 됩니다.
 
 ## 3. API 키 관리
@@ -128,7 +133,7 @@ MainActivity ─(+ 안내문 찍기)→ CaptureActivity ─(인식 완료)→ Re
 MainActivity ─(목록 항목 누름)→ ResultActivity (notice_id 전달)
 ```
 
-Activity 사이에는 SQLite의 `notice_id`만 `Intent` extra로 넘기고, 화면에서 DB를 다시 읽습니다. 긴 원문 텍스트나 사진을 Intent에 직접 담지 않습니다.
+Activity 사이에는 Room DB의 `notice_id`만 `Intent` extra로 넘기고, 화면에서 DB를 다시 읽습니다. 긴 원문 텍스트나 사진을 Intent에 직접 담지 않습니다.
 
 **접근성 기준을 레이아웃에 적용하는 방법**
 
@@ -152,11 +157,13 @@ app/src/main/java/com/kms3735/threelinesfirst/
 ├── privacy/PrivacyMasker.java   # 개인정보 가림 (정규식)
 ├── ai/
 │   ├── GeminiApi.java           # Retrofit 인터페이스
-│   └── SummaryClient.java       # 프롬프트 구성, 응답 JSON → Summary 변환, 형식 검사
+│   └── SummaryClient.java       # 프롬프트 구성, 응답 JSON → Notice·Todo 변환, 형식 검사
 ├── verify/Verifier.java         # 날짜·금액 정규화와 대조, 마감일·전화번호 추출
 ├── data/
-│   ├── NoticeDbHelper.java      # SQLiteOpenHelper
-│   └── Summary.java             # 요약 한 건 (세 줄, 경고, 할 일, 마감일, 금액)
+│   ├── AppDatabase.java         # Room @Database
+│   ├── Notice.java              # @Entity 안내문 한 건 + 세 줄 요약
+│   ├── Todo.java                # @Entity 할 일 체크박스
+│   └── NoticeDao.java           # @Dao 조회·저장·수정
 └── util/
     ├── ActionIntents.java       # 달력 등록, 전화, 공유 인텐트
     ├── DeadlineAlarm.java       # 알림 예약 + BroadcastReceiver
@@ -178,7 +185,7 @@ app/src/main/java/com/kms3735/threelinesfirst/
 | 5. AI 요약 | `SummaryClient` | Retrofit으로 Gemini `generateContent` 호출, JSON 응답 고정 | Retrofit `enqueue` |
 | 6. 형식 검사 | `SummaryClient` | 필수 필드가 없거나 비면 1회 재요청 | 콜백 |
 | 7. 날짜·금액 대조 | `Verifier` | 원문·요약의 날짜와 금액을 정규화해 비교, 불일치 시 1회 재요약 후 경고 배지 | 콜백 |
-| 8. 저장과 표시 | `NoticeDbHelper`, `ResultActivity` | SQLite에 저장 후 화면 표시, 마감일 알림 예약 | 메인 |
+| 8. 저장과 표시 | `NoticeDao`, `ResultActivity` | Room에 저장 후 `Handler`로 화면 표시, 마감일 알림 예약 | 저장은 백그라운드, 표시는 메인 |
 
 ### Gemini API 호출
 
@@ -221,16 +228,57 @@ public interface GeminiApi {
 
 ## 8. 데이터 저장
 
-**SQLite (`NoticeDbHelper`)**
+**Room (Week05)**
 
-| 테이블 | 주요 열 | 내용 |
+Room은 SQLite 위에서 동작하므로 계획서의 "SQLite 저장"과 같은 구조이고, 수업에서 권장한 대로 `SQLiteOpenHelper` 대신 Entity·DAO·Database 세 가지로 나눕니다.
+
+| Entity (테이블) | 주요 필드 | 내용 |
 | --- | --- | --- |
-| `notice` | id, title, masked_text, image_path, deadline, amount, phone, verified, created_at | 안내문 한 건과 대조 결과 |
-| `summary` | notice_id, line1_what, line2_todo, line3_when_where, warning | 세 줄 요약과 경고 문구 |
-| `todo` | id, notice_id, content, done | 할 일 체크박스 |
+| `Notice` (`notice`) | id, title, maskedText, imagePath, line1What, line2Todo, line3WhenWhere, warning, deadline, amount, phone, verified, createdAt | 안내문 한 건, 세 줄 요약, 대조 결과 |
+| `Todo` (`todo`) | id, noticeId, content, done | 할 일 체크박스 |
 
-- 원문 사진은 앱 내부 저장소(`getFilesDir()`)에만 저장하고, 사진 보관을 끄면 요약 후 파일을 지우고 `image_path`를 비웁니다.
-- 가린 텍스트(`masked_text`)만 저장하고, 가리기 전 원문 텍스트는 저장하지 않습니다.
+```java
+@Dao
+public interface NoticeDao {
+    @Query("SELECT * FROM notice ORDER BY createdAt DESC")
+    List<Notice> getAll();
+
+    @Query("SELECT * FROM todo WHERE noticeId = :noticeId")
+    List<Todo> getTodos(long noticeId);
+
+    @Insert long insert(Notice notice);
+    @Insert void insertTodos(List<Todo> todos);
+    @Update void updateTodo(Todo todo);   // 체크박스 상태
+    @Delete void delete(Notice notice);
+}
+```
+
+- 요약은 안내문 한 건에 하나뿐이라 `Notice`에 함께 두고, 개수가 정해지지 않은 할 일만 `Todo`로 나눕니다.
+- `AppDatabase`는 `Room.databaseBuilder(...)`로 앱 전체에서 한 번만 만들어 씁니다.
+
+**DB와 네트워크는 메인 스레드에서 하지 않습니다 (Week06)**
+
+Week05 예제의 `allowMainThreadQueries()`는 실습용이라 쓰지 않습니다. 메인 스레드에서 DB를 읽으면 화면이 멈추거나 ANR이 생길 수 있으므로, Week06에서 배운 대로 백그라운드 스레드에서 처리하고 `Handler`로 화면을 고칩니다.
+
+```java
+private final Handler uiHandler = new Handler(Looper.getMainLooper());
+
+private void loadNotices() {
+    new Thread(() -> {
+        List<Notice> notices = db.noticeDao().getAll();        // 백그라운드 스레드
+        uiHandler.post(() -> adapter.setItems(notices));       // 메인 스레드에서 화면 갱신
+    }).start();
+}
+```
+
+Retrofit(`enqueue`)과 ML Kit(`Task` 콜백)은 라이브러리가 알아서 백그라운드에서 처리하고 결과를 메인 스레드로 돌려주므로 따로 스레드를 만들지 않습니다.
+
+**내부 저장소 (Week05 File I/O)**
+
+- 원문 사진은 앱 내부 저장소(`getFilesDir()`)에만 저장합니다. 다른 앱이 접근할 수 없고, 앱을 지우면 함께 지워집니다.
+- 사진 보관을 끄면 요약 후 파일을 지우고 `imagePath`를 비웁니다.
+- 가린 텍스트(`maskedText`)만 저장하고, 가리기 전 원문 텍스트는 저장하지 않습니다.
+- Android Studio의 **Device File Explorer**에서 `/data/data/com.kms3735.threelinesfirst/` 아래 `files/`(사진)와 `databases/`(Room DB)가 제대로 생겼는지 확인합니다.
 
 **SharedPreferences**
 
@@ -253,7 +301,7 @@ public interface GeminiApi {
 | 2 | 필수 | `PrivacyMasker` + 단위 테스트, 개인정보 동의 화면 | 테스트 문장의 주민번호·계좌·휴대전화가 모두 가려짐 |
 | 3 | 필수 | Gemini 호출, JSON 형식 검사, 세 줄 카드·경고·체크박스 화면 | 샘플 5종이 세 줄 형식으로 표시됨 |
 | 4 | 필수 | `Verifier` + 단위 테스트, 재요약과 경고 배지, 원문 나란히 보기 | 날짜를 일부러 틀린 요약에 경고 배지가 붙음 |
-| 5 | 필수 | SQLite 저장, 안내문 목록 화면 | 앱을 껐다 켜도 목록과 체크 상태가 남아 있음 |
+| 5 | 필수 | Room 저장, 안내문 목록 화면 | 앱을 껐다 켜도 목록과 체크 상태가 남아 있음 |
 | 6 | 추가 | 읽어주기, 달력 등록, 전화 걸기, 가족에게 보내기, 마감일 알림 | 버튼마다 해당 앱이 열리고, 알림이 예약됨 |
 | 7 | 추가 | 쉬운 말·큰 글씨 모드, "이해가 안 돼요" 재요약, Firebase 가족 공유 | 설정이 모든 문서에 적용됨 |
 | 8 | 마무리 | 샘플로 정확도 점검, 접근성 점검, 서명된 APK 빌드, 시연 영상 | 최종 보고서와 APK |
@@ -268,14 +316,24 @@ public interface GeminiApi {
 | 로그 확인 | **Logcat**에서 `SummaryClient`, `Verifier` 태그로 AI 응답과 대조 결과 확인 |
 | 시연용 APK | **Build → Generate Signed App Bundle / APK → APK**, 만든 keystore 파일은 Git에 올리지 않음 (`.gitignore`에 `*.jks` 포함) |
 
-## 11. 수업 내용과 다른 점
+## 11. 수업 내용 적용
 
-수업에서 다룬 `AsyncTask`와 `IntentService`는 최신 안드로이드에서 사용 중단되었으므로 쓰지 않습니다.
+| 주차 | 수업 내용 | 이 앱에서 쓰는 곳 |
+| --- | --- | --- |
+| Week01 | Android Studio 프로젝트 생성, 에뮬레이터 실행 | 1절 프로젝트 생성 설정 |
+| Week02 | 기본 위젯 (TextView, Button, CheckBox 등) | 세 줄 카드, 할 일 체크박스, 행동 버튼 |
+| Week03 | 레이아웃 (ConstraintLayout, LinearLayout, weight) | 모든 화면 배치, 큰 글씨 모드 |
+| Week03-1 | 앱 구성 요소, Activity 생명주기 | Activity 6개, `onPause`에서 읽어주기 정지, BroadcastReceiver(알림) |
+| Week05 | 내부 저장소 File I/O, SharedPreferences, Room | 원문 사진 저장, 내 모드 설정, 안내문·할 일 저장 |
+| Week06 | Thread, Handler, Looper | DB 작업을 백그라운드 스레드에서 처리하고 Handler로 화면 갱신 |
+
+**수업 내용과 다르게 구현하는 부분**
 
 | 수업 내용 | 이 앱에서 쓰는 것 | 이유 |
 | --- | --- | --- |
-| `AsyncTask` | Retrofit `enqueue`, ML Kit `Task` 콜백 | 라이브러리가 이미 백그라운드에서 처리 |
-| `IntentService` | `AlarmManager` + `BroadcastReceiver` | 알림 예약만 필요하고 오래 도는 작업이 없음 |
+| `allowMainThreadQueries()` (Week05 실습) | `Thread` + `Handler` (Week06) | 메인 스레드에서 DB를 다루면 화면이 멈출 수 있음 |
+| Room `ksp` 설정 (Week05) | `annotationProcessor`만 사용 | Java로만 작성하므로 `ksp`가 필요 없음 |
 | 카메라 인텐트 | CameraX | 촬영 화면 위에 가이드 틀을 그려야 함 |
+| `AsyncTask`, `IntentService` | `Thread` + `Handler`, `AlarmManager` + `BroadcastReceiver` | 최신 안드로이드에서 사용 중단됨 |
 
-향후 개선 과제로 WorkManager(알림 예약), Room(SQLite 대체) 전환을 둡니다.
+향후 개선 과제로 알림 예약의 WorkManager 전환을 둡니다.

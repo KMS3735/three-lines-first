@@ -108,7 +108,8 @@
 | AI | Gemini API (요약 생성, 쉬운 말 재요약) |
 | 통신 | Retrofit, JSON 파싱 |
 | 검증 | 정규식 기반 날짜·금액·개인정보·전화번호 추출 |
-| 저장 | SQLite, SharedPreferences (내 모드, 동의 여부, 사진 보관 설정) |
+| 저장 | Room(SQLite), SharedPreferences (내 모드, 동의 여부, 사진 보관 설정), 내부 저장소 (원문 사진) |
+| 백그라운드 처리 | Thread, Handler |
 | 행동 연결 | 암시적 인텐트 (달력 일정 추가, 전화 걸기, 공유하기) |
 | 알림·음성 | AlarmManager, Notification, TextToSpeech |
 | 계정·공유 | Firebase Authentication, Realtime Database |
@@ -127,7 +128,7 @@ app/src/main/java/.../threelinesfirst/
 ├── privacy/PrivacyMasker.java   # 개인정보 가림
 ├── ai/SummaryClient.java        # Gemini API 호출(Retrofit), JSON 변환
 ├── verify/Verifier.java         # 날짜·금액 대조, 마감일·전화번호 추출
-├── data/NoticeDbHelper.java     # SQLite 저장
+├── data/                        # Room: AppDatabase, Notice·Todo 엔티티, NoticeDao
 └── util/
     ├── ActionIntents.java       # 달력 등록, 전화, 공유 인텐트
     ├── DeadlineAlarm.java       # 마감일 알림
@@ -138,11 +139,10 @@ app/src/main/java/.../threelinesfirst/
 
 | 테이블 | 주요 열 | 내용 |
 | --- | --- | --- |
-| `notice` | id, title, masked_text, image_path, deadline, amount, phone, verified, created_at | 안내문 한 건과 대조 결과 |
-| `summary` | notice_id, line1_what, line2_todo, line3_when_where, warning | 세 줄 요약과 경고 문구 |
-| `todo` | id, notice_id, content, done | 할 일 체크박스 |
+| `notice` | id, title, maskedText, imagePath, line1What, line2Todo, line3WhenWhere, warning, deadline, amount, phone, verified, createdAt | 안내문 한 건, 세 줄 요약, 대조 결과 |
+| `todo` | id, noticeId, content, done | 할 일 체크박스 |
 
-원문 사진 보관을 끄면 `image_path` 없이 요약 텍스트만 남습니다.
+Room으로 저장하고, DB 작업은 백그라운드 스레드에서 처리합니다. 원문 사진 보관을 끄면 `imagePath` 없이 요약 텍스트만 남습니다.
 
 ## 시작하기
 
