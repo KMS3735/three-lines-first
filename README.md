@@ -7,6 +7,7 @@
 > 현재 개발 중인 프로젝트입니다. 아래 기능과 구조는 구현 목표를 기준으로 작성했습니다.
 > 기획서 전문: [docs/project-plan.pdf](docs/project-plan.pdf)
 > Android Studio 개발 계획서: [docs/android-studio-plan.md](docs/android-studio-plan.md)
+> GitHub 진행 방법: [docs/github-workflow.md](docs/github-workflow.md)
 
 ![핵심 화면 목업](docs/images/screen-mockup.png)
 
