@@ -101,19 +101,26 @@
 
 ## 기술 스택
 
-| 구분 | 사용 기술 |
-| --- | --- |
-| 언어·환경 | Java, Android Studio, Git |
-| 화면 | XML 레이아웃, RecyclerView, CardView |
-| 글자 인식 | ML Kit Text Recognition (한국어, 기기 내 처리) |
-| AI | Gemini API (요약 생성, 쉬운 말 재요약) |
-| 통신 | Retrofit, JSON 파싱 |
-| 검증 | 정규식 기반 날짜·금액·개인정보·전화번호 추출 |
-| 저장 | Room(SQLite), SharedPreferences (내 모드, 동의 여부, 사진 보관 설정), 내부 저장소 (원문 사진) |
-| 백그라운드 처리 | Thread, Handler |
-| 행동 연결 | 암시적 인텐트 (달력 일정 추가, 전화 걸기, 공유하기) |
-| 알림·음성 | AlarmManager, Notification, TextToSpeech |
-| 계정·공유 | Firebase Authentication, Realtime Database |
+<p>
+  <img src="https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=openjdk&logoColor=white" alt="Java">
+  <img src="https://img.shields.io/badge/Android%20Studio-3DDC84?style=flat-square&logo=androidstudio&logoColor=white" alt="Android Studio">
+  <img src="https://img.shields.io/badge/ML%20Kit-4285F4?style=flat-square&logo=google&logoColor=white" alt="ML Kit">
+  <img src="https://img.shields.io/badge/Gemini%20API-8E75B2?style=flat-square&logo=googlegemini&logoColor=white" alt="Gemini API">
+  <img src="https://img.shields.io/badge/Room-4CAF50?style=flat-square&logo=sqlite&logoColor=white" alt="Room">
+  <img src="https://img.shields.io/badge/Retrofit-48B983?style=flat-square&logo=square&logoColor=white" alt="Retrofit">
+  <img src="https://img.shields.io/badge/Firebase-DD2C00?style=flat-square&logo=firebase&logoColor=white" alt="Firebase">
+</p>
+
+| 분야 | 기술 | 쓰는 곳 |
+| --- | --- | --- |
+| 📱 화면 | XML 레이아웃 · RecyclerView · CardView | 세 줄 카드, 안내문 목록 |
+| 📷 촬영 · 글자 인식 | CameraX · ML Kit (한국어) | 가이드 틀 촬영, 기기 안 글자 인식 |
+| 🤖 AI · 통신 | Gemini API · Retrofit | 세 줄 요약, 쉬운 말 재요약 |
+| ✅ 검증 | 정규식 | 날짜·금액 대조, 개인정보 가림 |
+| 💾 저장 | Room · SharedPreferences · 내부 저장소 | 안내문·할 일, 내 모드 설정, 원문 사진 |
+| ⚙️ 백그라운드 | Thread · Handler | DB 작업, 화면 갱신 |
+| 🔔 알림 · 행동 | AlarmManager · TextToSpeech · 암시적 인텐트 | 마감일 알림, 읽어주기, 달력·전화·공유 |
+| ☁️ 가족 공유 | Firebase Authentication · Realtime Database | 자녀 계정에 요약 공유 |
 
 ## 프로젝트 구조 (예정)
 
