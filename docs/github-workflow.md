@@ -13,7 +13,7 @@ Week01 강의자료의 "Term project milestones"에서 제시한 조건과 이 �
 | 수업 조건 | 대응 |
 | --- | --- |
 | 소스 코드는 Java (Kotlin 허용) | 모든 앱 코드를 Java로 작성 |
-| Claude, ChatGPT, Gemini 등 AI를 적극 활용, AI 에이전트 활용을 먼저 계획 | 개발 과정에 AI 에이전트를 활용하고 활용 내역을 기록 ([ai-usage.md](ai-usage.md)) |
+| Claude, ChatGPT, Gemini 등 AI를 적극 활용, AI 에이전트 활용을 먼저 계획 | 기획·설계·구현 과정에 AI 에이전트를 활용하고, 결과는 직접 실행과 테스트로 검증 |
 | 실제로 쓸 수 있는 앱 | 실제 공공 안내문 샘플로 정확도를 점검하고 실기기에서 동작 확인 |
 
 ## 2. 저장소 구성
@@ -23,10 +23,9 @@ three-lines-first/
 ├── README.md                    # 프로젝트 소개
 ├── app/                         # Android Studio 앱 모듈 (Java)
 ├── docs/
-│   ├── project-plan.pptx        # 프로젝트 계획서
+│   ├── project-plan.pdf         # 프로젝트 계획서
 │   ├── android-studio-plan.md   # Android Studio 개발 계획서
 │   ├── github-workflow.md       # 프로젝트 관리 계획 (이 문서)
-│   ├── ai-usage.md              # AI 도구 활용 내역
 │   └── images/                  # 문서용 그림
 └── .gitignore
 ```

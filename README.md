@@ -5,10 +5,9 @@
 세금, 과태료, 건강검진, 복지 안내문을 촬영하면 AI가 **무슨 안내인지 · 해야 할 일 · 언제까지·얼마·어디서** 세 줄과 **"안 하면"** 경고 한 줄, 할 일 체크박스로 정리해 줍니다. 요약 속 날짜와 금액은 원문과 코드로 한 번 더 대조하고, 읽은 뒤에는 달력 등록 · 전화 · 가족 공유까지 버튼 하나로 이어집니다.
 
 > 현재 개발 중인 프로젝트입니다. 아래 기능과 구조는 구현 목표를 기준으로 작성했습니다.
-> 프로젝트 계획서 (PPT): [docs/project-plan.pptx](docs/project-plan.pptx)
+> 프로젝트 계획서: [docs/project-plan.pdf](docs/project-plan.pdf)
 > Android Studio 개발 계획서: [docs/android-studio-plan.md](docs/android-studio-plan.md)
 > 프로젝트 관리 계획: [docs/github-workflow.md](docs/github-workflow.md)
-> AI 도구 활용 내역: [docs/ai-usage.md](docs/ai-usage.md)
 
 ![핵심 화면 목업](docs/images/screen-mockup.png)
 

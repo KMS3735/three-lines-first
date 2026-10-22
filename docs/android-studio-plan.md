@@ -1,6 +1,6 @@
 # 세 줄 먼저 – Android Studio 개발 계획서
 
-프로젝트 계획서([project-plan.pptx](project-plan.pptx))의 기능을 Android Studio에서 어떻게 구현할지 정리한 문서입니다. 모든 개발과 빌드, 테스트는 Android Studio에서 진행합니다.
+프로젝트 계획서([project-plan.pdf](project-plan.pdf))의 기능을 Android Studio에서 어떻게 구현할지 정리한 문서입니다. 모든 개발과 빌드, 테스트는 Android Studio에서 진행합니다.
 
 ![핵심 화면 목업](images/screen-mockup.png)
 
