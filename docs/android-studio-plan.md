@@ -315,25 +315,3 @@ Retrofit(`enqueue`)과 ML Kit(`Task` 콜백)은 라이브러리가 알아서 백
 | 에뮬레이터 | 화면 배치와 설정 확인용 (카메라 촬영과 글자 인식은 실제 기기 권장) |
 | 로그 확인 | **Logcat**에서 `SummaryClient`, `Verifier` 태그로 AI 응답과 대조 결과 확인 |
 | 시연용 APK | **Build → Generate Signed App Bundle / APK → APK**, 만든 keystore 파일은 Git에 올리지 않음 (`.gitignore`에 `*.jks` 포함) |
-
-## 11. 수업 내용 적용
-
-| 주차 | 수업 내용 | 이 앱에서 쓰는 곳 |
-| --- | --- | --- |
-| Week01 | Android Studio 프로젝트 생성, 에뮬레이터 실행 | 1절 프로젝트 생성 설정 |
-| Week02 | 기본 위젯 (TextView, Button, CheckBox 등) | 세 줄 카드, 할 일 체크박스, 행동 버튼 |
-| Week03 | 레이아웃 (ConstraintLayout, LinearLayout, weight) | 모든 화면 배치, 큰 글씨 모드 |
-| Week03-1 | 앱 구성 요소, Activity 생명주기 | Activity 6개, `onPause`에서 읽어주기 정지, BroadcastReceiver(알림) |
-| Week05 | 내부 저장소 File I/O, SharedPreferences, Room | 원문 사진 저장, 내 모드 설정, 안내문·할 일 저장 |
-| Week06 | Thread, Handler, Looper | DB 작업을 백그라운드 스레드에서 처리하고 Handler로 화면 갱신 |
-
-**수업 내용과 다르게 구현하는 부분**
-
-| 수업 내용 | 이 앱에서 쓰는 것 | 이유 |
-| --- | --- | --- |
-| `allowMainThreadQueries()` (Week05 실습) | `Thread` + `Handler` (Week06) | 메인 스레드에서 DB를 다루면 화면이 멈출 수 있음 |
-| Room `ksp` 설정 (Week05) | `annotationProcessor`만 사용 | Java로만 작성하므로 `ksp`가 필요 없음 |
-| 카메라 인텐트 | CameraX | 촬영 화면 위에 가이드 틀을 그려야 함 |
-| `AsyncTask`, `IntentService` | `Thread` + `Handler`, `AlarmManager` + `BroadcastReceiver` | 최신 안드로이드에서 사용 중단됨 |
-
-향후 개선 과제로 알림 예약의 WorkManager 전환을 둡니다.
