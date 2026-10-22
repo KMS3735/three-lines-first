@@ -47,5 +47,13 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
     implementation(libs.material)
+
+    // 촬영: 화면 위에 가이드 틀을 그리려고 CameraX 미리보기 사용
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
+
+    // 글자 인식 (한국어, 기기 안에서 처리)
+    implementation(libs.mlkit.text.korean)
     testImplementation(libs.junit)
 }
