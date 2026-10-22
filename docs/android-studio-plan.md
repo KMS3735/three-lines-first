@@ -1,6 +1,6 @@
 # 세 줄 먼저 – Android Studio 개발 계획서
 
-기획서([project-plan.pdf](project-plan.pdf))의 기능을 Android Studio에서 어떻게 구현할지 정리한 문서입니다. 모든 개발과 빌드, 테스트는 Android Studio에서 진행합니다.
+프로젝트 계획서([project-plan.pptx](project-plan.pptx))의 기능을 Android Studio에서 어떻게 구현할지 정리한 문서입니다. 모든 개발과 빌드, 테스트는 Android Studio에서 진행합니다.
 
 ![핵심 화면 목업](images/screen-mockup.png)
 
@@ -53,9 +53,9 @@ dependencies {
 }
 ```
 
-- 버전은 작성 시점 기준입니다. Android Studio의 **노란 밑줄 경고 → 최신 버전으로 변경**을 눌러 올려도 됩니다.
+- 버전은 계획 작성 시점 기준이며, 개발 시작 시 Android Studio가 안내하는 최신 안정 버전으로 맞춥니다.
 - Room: Week05 자료에는 `ksp` 플러그인 설정도 있지만, 이 앱은 Java로만 작성하므로 `annotationProcessor` 한 줄이면 됩니다. Kotlin 파일에 Room을 쓸 때만 `ksp`를 추가합니다.
-- Firebase는 추가 범위입니다. 필수 범위를 만들 때는 Firebase 줄과 `google-services` 플러그인을 빼고 시작해도 됩니다.
+- Firebase는 추가 범위(가족 공유)에서 연결합니다. 필수 범위 개발 단계에서는 Firebase 의존성과 `google-services` 플러그인 없이 진행합니다.
 
 ## 3. API 키 관리
 
@@ -86,7 +86,7 @@ android {
 String key = BuildConfig.GEMINI_API_KEY;
 ```
 
-> 텀 프로젝트와 시연용 APK에서는 이 방식으로 충분합니다. Play 스토어처럼 불특정 다수에게 배포할 때는 APK에서 키를 꺼낼 수 있으므로, 키를 Firebase Functions 같은 서버로 옮기고 앱은 서버를 거쳐 요청하도록 바꿉니다.
+> 텀 프로젝트 시연 범위에서는 이 방식을 사용합니다. Play 스토어처럼 불특정 다수에게 배포할 때는 APK에서 키를 꺼낼 수 있으므로, 키를 Firebase Functions 같은 서버로 옮기고 앱은 서버를 거쳐 요청하도록 바꿉니다.
 
 ## 4. 권한 (`AndroidManifest.xml`)
 
