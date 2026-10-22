@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">세 줄 먼저</string>
+
+    <!-- 안내문 목록 -->
+    <string name="empty_list">아직 찍은 안내문이 없어요.\n아래 버튼을 눌러 안내문을 찍어 보세요.</string>
+    <string name="capture_notice">+ 안내문 찍기</string>
+
+    <!-- 촬영 -->
+    <string name="capture_tips">• 종이를 평평하게\n• 밝은 곳에서\n• 네 모서리가 틀 안에 보이게</string>
+    <string name="shoot">찍기</string>
+    <string name="reading">글자를 읽는 중…</string>
+    <string name="retake">다시 찍기</string>
+    <string name="preview_desc">카메라 화면. 안내문을 틀 안에 맞춰 주세요</string>
+    <string name="camera_permission_needed">안내문을 찍으려면 카메라 권한이 필요해요.</string>
+    <string name="camera_error">카메라를 켤 수 없어요.</string>
+    <string name="capture_error">사진을 찍지 못했어요. 다시 눌러 주세요.</string>
+
+    <!-- 인식 결과 -->
+    <string name="result_ok">이렇게 읽었어요. 내용이 맞는지 확인해 주세요.</string>
+    <string name="result_too_little">글자가 잘 안 보여요. 밝은 곳에서 다시 찍어 주세요.</string>
+    <string name="result_empty">(읽은 글자가 없어요)</string>
 </resources>
