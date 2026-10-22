@@ -6,6 +6,9 @@
 
 > 현재 개발 중인 프로젝트입니다. 아래 기능과 구조는 구현 목표를 기준으로 작성했습니다.
 > 기획서 전문: [docs/project-plan.pdf](docs/project-plan.pdf)
+> Android Studio 개발 계획서: [docs/android-studio-plan.md](docs/android-studio-plan.md)
+
+![핵심 화면 목업](docs/images/screen-mockup.png)
 
 ## 왜 만들었나
 
@@ -141,6 +144,8 @@ app/src/main/java/.../threelinesfirst/
 원문 사진 보관을 끄면 `image_path` 없이 요약 텍스트만 남습니다.
 
 ## 시작하기
+
+모든 개발과 빌드는 Android Studio에서 진행합니다. 프로젝트 설정, 의존성, 권한, 개발 순서는 [Android Studio 개발 계획서](docs/android-studio-plan.md)에 정리했습니다.
 
 1. 저장소를 클론하고 Android Studio로 엽니다.
    ```bash
