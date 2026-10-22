@@ -6,7 +6,7 @@
 
 ## 1. 프로젝트 생성 설정
 
-Android Studio에서 **New Project → Empty Views Activity**로 만듭니다. 수업에서 다룬 XML 레이아웃을 그대로 쓰기 위해 Compose 템플릿(Empty Activity)이 아닌 Views 템플릿을 고릅니다.
+Android Studio에서 **New Project → Empty Views Activity**로 만듭니다. 화면을 XML 레이아웃으로 구성하기 위해 Compose 템플릿(Empty Activity)이 아닌 Views 템플릿을 고릅니다.
 
 | 항목 | 값 |
 | --- | --- |
@@ -36,7 +36,7 @@ dependencies {
     // 글자 인식 (한국어, 기기 내 처리)
     implementation("com.google.mlkit:text-recognition-korean:16.0.1")
 
-    // 저장 (Week05 Room)
+    // 저장 (Room)
     implementation("androidx.room:room-runtime:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
 
@@ -54,7 +54,7 @@ dependencies {
 ```
 
 - 버전은 계획 작성 시점 기준이며, 개발 시작 시 Android Studio가 안내하는 최신 안정 버전으로 맞춥니다.
-- Room: Week05 자료에는 `ksp` 플러그인 설정도 있지만, 이 앱은 Java로만 작성하므로 `annotationProcessor` 한 줄이면 됩니다. Kotlin 파일에 Room을 쓸 때만 `ksp`를 추가합니다.
+- Room: 앱을 Java로만 작성하므로 `ksp` 플러그인 없이 `annotationProcessor`로 Room 컴파일러를 연결합니다.
 - Firebase는 추가 범위(가족 공유)에서 연결합니다. 필수 범위 개발 단계에서는 Firebase 의존성과 `google-services` 플러그인 없이 진행합니다.
 
 ## 3. API 키 관리
@@ -228,9 +228,9 @@ public interface GeminiApi {
 
 ## 8. 데이터 저장
 
-**Room (Week05)**
+**Room**
 
-Room은 SQLite 위에서 동작하므로 계획서의 "SQLite 저장"과 같은 구조이고, 수업에서 권장한 대로 `SQLiteOpenHelper` 대신 Entity·DAO·Database 세 가지로 나눕니다.
+Room은 SQLite 위에서 동작하는 라이브러리로, `SQLiteOpenHelper` 대신 Entity·DAO·Database 세 가지로 나눠 저장 구조를 관리합니다.
 
 | Entity (테이블) | 주요 필드 | 내용 |
 | --- | --- | --- |
@@ -256,9 +256,9 @@ public interface NoticeDao {
 - 요약은 안내문 한 건에 하나뿐이라 `Notice`에 함께 두고, 개수가 정해지지 않은 할 일만 `Todo`로 나눕니다.
 - `AppDatabase`는 `Room.databaseBuilder(...)`로 앱 전체에서 한 번만 만들어 씁니다.
 
-**DB와 네트워크는 메인 스레드에서 하지 않습니다 (Week06)**
+**DB와 네트워크는 메인 스레드에서 하지 않습니다**
 
-Week05 예제의 `allowMainThreadQueries()`는 실습용이라 쓰지 않습니다. 메인 스레드에서 DB를 읽으면 화면이 멈추거나 ANR이 생길 수 있으므로, Week06에서 배운 대로 백그라운드 스레드에서 처리하고 `Handler`로 화면을 고칩니다.
+`allowMainThreadQueries()`는 쓰지 않습니다. 메인 스레드에서 DB를 읽으면 화면이 멈추거나 ANR이 생길 수 있으므로, 백그라운드 스레드에서 처리하고 `Handler`로 화면을 고칩니다.
 
 ```java
 private final Handler uiHandler = new Handler(Looper.getMainLooper());
@@ -273,7 +273,7 @@ private void loadNotices() {
 
 Retrofit(`enqueue`)과 ML Kit(`Task` 콜백)은 라이브러리가 알아서 백그라운드에서 처리하고 결과를 메인 스레드로 돌려주므로 따로 스레드를 만들지 않습니다.
 
-**내부 저장소 (Week05 File I/O)**
+**내부 저장소**
 
 - 원문 사진은 앱 내부 저장소(`getFilesDir()`)에만 저장합니다. 다른 앱이 접근할 수 없고, 앱을 지우면 함께 지워집니다.
 - 사진 보관을 끄면 요약 후 파일을 지우고 `imagePath`를 비웁니다.
