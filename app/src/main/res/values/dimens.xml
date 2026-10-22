@@ -1,0 +1,7 @@
+<resources>
+    <!-- 접근성 기준: 본문 20sp 이상, 큰 글씨 모드 28sp 이상, 버튼 48dp 이상 -->
+    <dimen name="text_body">20sp</dimen>
+    <dimen name="text_body_large">28sp</dimen>
+    <dimen name="text_title">28sp</dimen>
+    <dimen name="touch_min">48dp</dimen>
+</resources>
