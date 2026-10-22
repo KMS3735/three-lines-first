@@ -1,15 +1,19 @@
 package com.kms3735.threelinesfirst.ocr;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.net.Uri;
 
 import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /** ML Kit 한국어 글자 인식. 사진은 기기 밖으로 나가지 않는다. */
 public class OcrHelper {
@@ -35,8 +39,20 @@ public class OcrHelper {
             return;
         }
         recognizer.process(image)
-                .addOnSuccessListener(result -> callback.onSuccess(result.getText()))
+                .addOnSuccessListener(result -> callback.onSuccess(inReadingOrder(result)))
                 .addOnFailureListener(callback::onFailure);
+    }
+
+    private static String inReadingOrder(Text result) {
+        List<ReadingOrder.Line> lines = new ArrayList<>();
+        for (Text.TextBlock block : result.getTextBlocks()) {
+            for (Text.Line line : block.getLines()) {
+                Rect box = line.getBoundingBox();
+                if (box == null) continue;
+                lines.add(new ReadingOrder.Line(line.getText(), box.left, box.top, box.right, box.bottom));
+            }
+        }
+        return lines.isEmpty() ? result.getText() : ReadingOrder.arrange(lines);
     }
 
     public static boolean isEnough(String text) {
