@@ -4,6 +4,7 @@
     <!-- 안내문 목록 -->
     <string name="empty_list">아직 찍은 안내문이 없어요.\n아래 버튼을 눌러 안내문을 찍어 보세요.</string>
     <string name="capture_notice">+ 안내문 찍기</string>
+    <string name="import_photo">사진·캡처 불러오기</string>
 
     <!-- 촬영 -->
     <string name="capture_tips">• 종이를 평평하게\n• 밝은 곳에서\n• 네 모서리가 틀 안에 보이게</string>
@@ -19,4 +20,10 @@
     <string name="result_ok">이렇게 읽었어요. 내용이 맞는지 확인해 주세요.</string>
     <string name="result_too_little">글자가 잘 안 보여요. 밝은 곳에서 다시 찍어 주세요.</string>
     <string name="result_empty">(읽은 글자가 없어요)</string>
+    <string name="go_back">돌아가기</string>
+
+    <!-- 사진 불러오기, 공유로 받기 -->
+    <string name="import_error">사진을 불러오지 못했어요.</string>
+    <string name="share_empty">받은 내용이 없어요.</string>
+    <string name="share_label">세 줄 먼저로 요약하기</string>
 </resources>
