@@ -26,6 +26,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.ConsentActivity"
+            android:exported="false" />
         <!-- 다른 앱의 공유 목록에 나타나도록 이미지와 글을 받는다 -->
         <activity
             android:name=".ui.CaptureActivity"

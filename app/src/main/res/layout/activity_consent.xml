@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.ConsentActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/consent_title"
+                android:textSize="@dimen/text_title"
+                android:textStyle="bold" />
+
+            <TextView
+                style="@style/ConsentItemTitle"
+                android:text="@string/consent_1_title" />
+
+            <TextView
+                style="@style/ConsentItemBody"
+                android:text="@string/consent_1_body" />
+
+            <TextView
+                style="@style/ConsentItemTitle"
+                android:text="@string/consent_2_title" />
+
+            <TextView
+                style="@style/ConsentItemBody"
+                android:text="@string/consent_2_body" />
+
+            <TextView
+                style="@style/ConsentItemTitle"
+                android:text="@string/consent_3_title" />
+
+            <TextView
+                style="@style/ConsentItemBody"
+                android:text="@string/consent_3_body" />
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnAgree"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:minHeight="72dp"
+        android:text="@string/consent_agree"
+        android:textSize="@dimen/text_body"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btnDisagree"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="16dp"
+        android:minHeight="@dimen/touch_min"
+        android:text="@string/consent_disagree"
+        android:textSize="@dimen/text_body" />
+
+</LinearLayout>

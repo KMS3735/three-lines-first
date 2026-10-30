@@ -2,6 +2,7 @@ package com.kms3735.threelinesfirst.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -27,6 +28,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             });
 
+    /** 첫 실행 개인정보 동의. 동의하지 않으면 앱을 닫는다 */
+    private final ActivityResultLauncher<Intent> consent =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() != RESULT_OK) {
+                    Toast.makeText(this, R.string.consent_needed, Toast.LENGTH_LONG).show();
+                    finish();
+                }
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,5 +54,9 @@ public class MainActivity extends AppCompatActivity {
                 pickPhoto.launch(new PickVisualMediaRequest.Builder()
                         .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                         .build()));
+
+        if (savedInstanceState == null && !ConsentActivity.isAgreed(this)) {
+            consent.launch(new Intent(this, ConsentActivity.class));
+        }
     }
 }

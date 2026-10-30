@@ -32,6 +32,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.kms3735.threelinesfirst.R;
 import com.kms3735.threelinesfirst.ocr.OcrHelper;
+import com.kms3735.threelinesfirst.privacy.PrivacyMasker;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -70,6 +71,17 @@ public class CaptureActivity extends AppCompatActivity {
                 }
             });
 
+    /** 공유로 바로 들어온 경우에도 동의를 먼저 받는다. 동의하면 받은 내용을 그대로 이어서 처리 */
+    private final ActivityResultLauncher<Intent> consent =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    start();
+                } else {
+                    Toast.makeText(this, R.string.consent_needed, Toast.LENGTH_LONG).show();
+                    finish();
+                }
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,6 +108,15 @@ public class CaptureActivity extends AppCompatActivity {
             else finish();
         });
 
+        if (savedInstanceState != null) return;
+        if (ConsentActivity.isAgreed(this)) {
+            start();
+        } else {
+            consent.launch(new Intent(this, ConsentActivity.class));
+        }
+    }
+
+    private void start() {
         Intent intent = getIntent();
         if (Intent.ACTION_SEND.equals(intent.getAction())) {
             receiveShare(intent);
@@ -152,8 +173,7 @@ public class CaptureActivity extends AppCompatActivity {
             return;
         }
         // 이미 글자로 된 안내문은 글자 인식 없이 그대로 쓴다
-        showResult(text.trim());
-        txtResultTitle.setText(R.string.result_shared_text);
+        showResult(text.trim(), R.string.result_shared_text);
     }
 
     /** 불러오거나 공유받은 사진을 내부 저장소로 복사한 뒤 글자를 읽는다 */
@@ -244,9 +264,17 @@ public class CaptureActivity extends AppCompatActivity {
     }
 
     private void showResult(String text) {
-        boolean enough = OcrHelper.isEnough(text);
-        txtResultTitle.setText(enough ? R.string.result_ok : R.string.result_too_little);
-        txtResult.setText(text.isEmpty() ? getString(R.string.result_empty) : text);
+        showResult(text, OcrHelper.isEnough(text) ? R.string.result_ok : R.string.result_too_little);
+    }
+
+    private void showResult(String text, int titleRes) {
+        // 화면에도 AI로 보낼 글(개인정보를 가린 글)을 그대로 보여 준다. 가리기 전 원문은 저장하지 않는다
+        PrivacyMasker.Result masked = PrivacyMasker.mask(text);
+        String note = masked.count > 0
+                ? getString(R.string.masked_count, masked.count)
+                : getString(R.string.masked_none);
+        txtResultTitle.setText(text.isEmpty() ? getString(titleRes) : getString(titleRes) + "\n" + note);
+        txtResult.setText(text.isEmpty() ? getString(R.string.result_empty) : masked.text);
         cameraGroup.setVisibility(View.GONE);
         resultGroup.setVisibility(View.VISIBLE);
         btnRetake.setText(fromCamera ? R.string.retake : R.string.go_back);
