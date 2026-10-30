@@ -153,6 +153,7 @@ public class CaptureActivity extends AppCompatActivity {
         }
         // 이미 글자로 된 안내문은 글자 인식 없이 그대로 쓴다
         showResult(text.trim());
+        txtResultTitle.setText(R.string.result_shared_text);
     }
 
     /** 불러오거나 공유받은 사진을 내부 저장소로 복사한 뒤 글자를 읽는다 */

@@ -25,5 +25,6 @@
     <!-- 사진 불러오기, 공유로 받기 -->
     <string name="import_error">사진을 불러오지 못했어요.</string>
     <string name="share_empty">받은 내용이 없어요.</string>
+    <string name="result_shared_text">이 내용을 받았어요. 맞는지 확인해 주세요.</string>
     <string name="share_label">세 줄 먼저로 요약하기</string>
 </resources>
