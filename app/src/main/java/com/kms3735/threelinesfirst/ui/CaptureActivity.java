@@ -1,8 +1,12 @@
 package com.kms3735.threelinesfirst.ui;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -30,8 +34,15 @@ import com.kms3735.threelinesfirst.R;
 import com.kms3735.threelinesfirst.ocr.OcrHelper;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-/** ② 촬영 안내: 가이드 틀 위에서 촬영하고, 기기 안에서 글자를 읽어 결과를 보여 준다. */
+/**
+ * ② 촬영 안내: 가이드 틀 위에서 촬영하고, 기기 안에서 글자를 읽어 결과를 보여 준다.
+ * 사진 불러오기(Intent data)나 다른 앱의 공유(ACTION_SEND)로 들어오면 카메라를 건너뛴다.
+ */
 public class CaptureActivity extends AppCompatActivity {
 
     private static final String TAG = "CaptureActivity";
@@ -39,7 +50,11 @@ public class CaptureActivity extends AppCompatActivity {
     private PreviewView preview;
     private View cameraGroup, resultGroup;
     private TextView txtResultTitle, txtResult;
-    private Button btnShoot;
+    private Button btnShoot, btnRetake;
+
+    /** 카메라로 시작했는지. 사진·공유로 들어왔으면 다시 찍기 대신 돌아가기 */
+    private boolean fromCamera = true;
+    private final Handler uiHandler = new Handler(Looper.getMainLooper());
 
     private ImageCapture imageCapture;
     private final OcrHelper ocr = new OcrHelper();
@@ -73,8 +88,23 @@ public class CaptureActivity extends AppCompatActivity {
         txtResult = findViewById(R.id.txtResult);
         btnShoot = findViewById(R.id.btnShoot);
 
+        btnRetake = findViewById(R.id.btnRetake);
+
         btnShoot.setOnClickListener(v -> takePhoto());
-        findViewById(R.id.btnRetake).setOnClickListener(v -> showCamera());
+        btnRetake.setOnClickListener(v -> {
+            if (fromCamera) showCamera();
+            else finish();
+        });
+
+        Intent intent = getIntent();
+        if (Intent.ACTION_SEND.equals(intent.getAction())) {
+            receiveShare(intent);
+            return;
+        }
+        if (intent.getData() != null) {
+            importImage(intent.getData());
+            return;
+        }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -104,15 +134,80 @@ public class CaptureActivity extends AppCompatActivity {
         }, ContextCompat.getMainExecutor(this));
     }
 
+    /** 다른 앱에서 공유받은 이미지 또는 글 */
+    private void receiveShare(Intent intent) {
+        String type = intent.getType();
+        if (type != null && type.startsWith("image/")) {
+            Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            if (uri != null) {
+                importImage(uri);
+                return;
+            }
+        }
+        String text = intent.getStringExtra(Intent.EXTRA_TEXT);
+        fromCamera = false;
+        if (text == null || text.trim().isEmpty()) {
+            Toast.makeText(this, R.string.share_empty, Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+        // 이미 글자로 된 안내문은 글자 인식 없이 그대로 쓴다
+        showResult(text.trim());
+    }
+
+    /** 불러오거나 공유받은 사진을 내부 저장소로 복사한 뒤 글자를 읽는다 */
+    private void importImage(Uri uri) {
+        fromCamera = false;
+        showLoading();
+        photo = newPhotoFile();
+        new Thread(() -> {
+            boolean copied = copy(uri, photo);
+            uiHandler.post(() -> {
+                if (copied) {
+                    recognize();
+                } else {
+                    Toast.makeText(this, R.string.import_error, Toast.LENGTH_LONG).show();
+                    finish();
+                }
+            });
+        }).start();
+    }
+
+    private boolean copy(Uri uri, File dest) {
+        try (InputStream in = getContentResolver().openInputStream(uri);
+             OutputStream out = new FileOutputStream(dest)) {
+            if (in == null) return false;
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+            return true;
+        } catch (IOException | SecurityException e) {
+            Log.e(TAG, "사진 복사 실패", e);
+            return false;
+        }
+    }
+
+    private File newPhotoFile() {
+        // 원문 사진은 앱 내부 저장소에만 둔다
+        File dir = new File(getFilesDir(), "photos");
+        dir.mkdirs();
+        return new File(dir, "notice_" + System.currentTimeMillis() + ".jpg");
+    }
+
+    private void showLoading() {
+        cameraGroup.setVisibility(View.GONE);
+        resultGroup.setVisibility(View.VISIBLE);
+        txtResultTitle.setText(R.string.reading);
+        txtResult.setText("");
+        btnRetake.setVisibility(View.INVISIBLE);
+    }
+
     private void takePhoto() {
         if (imageCapture == null) return;
         btnShoot.setEnabled(false);
         btnShoot.setText(R.string.reading);
 
-        // 원문 사진은 앱 내부 저장소에만 둔다
-        File dir = new File(getFilesDir(), "photos");
-        dir.mkdirs();
-        photo = new File(dir, "notice_" + System.currentTimeMillis() + ".jpg");
+        photo = newPhotoFile();
 
         ImageCapture.OutputFileOptions options = new ImageCapture.OutputFileOptions.Builder(photo).build();
         imageCapture.takePicture(options, ContextCompat.getMainExecutor(this),
@@ -153,6 +248,8 @@ public class CaptureActivity extends AppCompatActivity {
         txtResult.setText(text.isEmpty() ? getString(R.string.result_empty) : text);
         cameraGroup.setVisibility(View.GONE);
         resultGroup.setVisibility(View.VISIBLE);
+        btnRetake.setText(fromCamera ? R.string.retake : R.string.go_back);
+        btnRetake.setVisibility(View.VISIBLE);
         resetShootButton();
         // 글자가 너무 적으면 요약으로 넘어가지 않는다 (요약 연결은 3단계)
     }
