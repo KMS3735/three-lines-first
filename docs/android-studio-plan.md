@@ -204,7 +204,7 @@ app/src/main/java/com/kms3735/threelinesfirst/
 | **1. 촬영 · 입력** | `CaptureActivity` | CameraX `ImageCapture`로 내부 저장소에 JPG 저장<br>또는 불러온 사진·공유받은 이미지를 내부 저장소로 복사 | CameraX 내부 |
 | **2. 글자 인식** | `OcrHelper`<br>`ReadingOrder` | ML Kit `KoreanTextRecognizerOptions`로 인식<br>줄 위치로 정렬해 표의 항목과 내용을 같은 줄로 맞춤<br>공유받은 글은 이 단계를 건너뜀 | ML Kit 콜백 |
 | **3. 인식 결과 확인** | `CaptureActivity` | 글자가 너무 적으면(30자 미만) 다시 찍기 안내 | 메인 |
-| **4. 개인정보 가림** | `PrivacyMasker` | 주민번호 · 휴대전화(010) · 계좌 · 주소 · "성명:" 뒤 이름을 `●●●`로 치환 | 메인 |
+| **4. 개인정보 가림** | `PrivacyMasker` | 주민번호 · 휴대전화(010) · 계좌 · 주소 · 이름을 `[주민번호]`, `[계좌번호]`처럼 종류를 밝혀 치환<br>숫자 사이 공백, 잘못 읽힌 글자가 끼어도 가리고, 기관 대표번호는 남김 | 메인 |
 | **5. AI 요약** | `SummaryClient` | Retrofit으로 Gemini `generateContent` 호출, JSON 응답 고정 | Retrofit `enqueue` |
 | **6. 형식 검사** | `SummaryClient` | 필수 필드가 없거나 비면 1회 재요청 | 콜백 |
 | **7. 날짜·금액 대조** | `Verifier` | 정규화해 비교, 불일치 시 1회 재요약 후 경고 배지 | 콜백 |
