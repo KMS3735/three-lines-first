@@ -112,6 +112,27 @@ String key = BuildConfig.GEMINI_API_KEY;
 - 전화: `Intent.ACTION_DIAL` (번호만 채워진 다이얼 화면, `CALL_PHONE` 권한 불필요)
 - 공유: `Intent.ACTION_SEND` + `FileProvider`로 원문 사진 첨부
 
+**온라인 안내문 입력 (계획서 검토 피드백 반영)**
+
+종이 안내문뿐 아니라 문자, 카카오톡, 전자고지처럼 온라인으로 받은 안내문도 처리합니다. 두 경로 모두 **추가 권한이 필요 없습니다.**
+
+- 사진·캡처 불러오기: `ActivityResultContracts.PickVisualMedia` (사진 선택기). 사용자가 고른 사진 한 장만 앱에 전달되므로 저장소 권한을 요청하지 않습니다.
+- 공유로 받기: `CaptureActivity`에 아래 인텐트 필터를 등록해 다른 앱의 공유 목록에 "세 줄 먼저"가 나타나게 합니다.
+
+```xml
+<intent-filter>
+    <action android:name="android.intent.action.SEND" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <data android:mimeType="image/*" />
+    <data android:mimeType="text/plain" />
+</intent-filter>
+```
+
+| 받은 내용 | 처리 |
+| --- | --- |
+| **이미지** (`EXTRA_STREAM`) | 내부 저장소로 복사한 뒤 촬영 사진과 같은 방식으로 글자 인식 |
+| **글** (`EXTRA_TEXT`) | 글자 인식 없이 바로 개인정보 가림 단계로 전달 |
+
 마감일 알림은 `AlarmManager.setAndAllowWhileIdle()`(정확하지 않은 알람)로 예약합니다. 3일 전·당일 알림은 몇 분 오차가 있어도 되므로, 별도 권한이 필요한 정확한 알람(`SCHEDULE_EXACT_ALARM`)은 쓰지 않습니다.
 
 ## 5. 화면 구성
@@ -119,8 +140,8 @@ String key = BuildConfig.GEMINI_API_KEY;
 | 화면 | Activity · 레이아웃 | 주요 위젯 |
 | --- | --- | --- |
 | **개인정보 동의** | `ConsentActivity`<br>`activity_consent.xml` | 전송 범위 그림, 동의 버튼 |
-| **① 안내문 목록** | `MainActivity`<br>`activity_main.xml` · `item_notice.xml` | RecyclerView + CardView, 촬영 버튼 |
-| **② 촬영 안내** | `CaptureActivity`<br>`activity_capture.xml` | CameraX `PreviewView` + 가이드 틀<br>인식 결과 확인 |
+| **① 안내문 목록** | `MainActivity`<br>`activity_main.xml` · `item_notice.xml` | RecyclerView + CardView<br>촬영 버튼, 사진 불러오기 버튼 |
+| **② 촬영 안내** | `CaptureActivity`<br>`activity_capture.xml` | CameraX `PreviewView` + 가이드 틀<br>인식 결과 확인<br>사진·공유로 들어오면 카메라를 건너뜀 |
 | **③ 세 줄 요약** | `ResultActivity`<br>`activity_result.xml` | 세 줄 카드, 경고, 체크박스<br>대조 배지, 원문 사진 |
 | **④ 행동 연결** | `ResultActivity` 아래쪽<br>같은 레이아웃 | 읽어주기 · 달력 · 전화 · 공유 버튼 |
 | **설정** | `SettingsActivity`<br>`activity_settings.xml` | 쉬운 말, 큰 글씨, 사진 보관, 알림 스위치 |
@@ -130,6 +151,8 @@ String key = BuildConfig.GEMINI_API_KEY;
 ```
 앱 실행 ─(동의 안 함)→ ConsentActivity ─→ MainActivity
 MainActivity ─(+ 안내문 찍기)→ CaptureActivity ─(인식 완료)→ ResultActivity
+MainActivity ─(사진 불러오기)→ CaptureActivity (사진 Uri 전달, 카메라 건너뜀)
+다른 앱 ─(공유)→ CaptureActivity (이미지는 글자 인식, 글은 바로 다음 단계)
 MainActivity ─(목록 항목 누름)→ ResultActivity (notice_id 전달)
 ```
 
@@ -150,10 +173,10 @@ app/src/main/java/com/kms3735/threelinesfirst/
 │   ├── MainActivity.java        # 저장한 안내문 목록
 │   ├── NoticeAdapter.java       # 목록 RecyclerView 어댑터
 │   ├── ConsentActivity.java     # 첫 실행 개인정보 동의
-│   ├── CaptureActivity.java     # 촬영 안내, 촬영, 인식 결과 확인
+│   ├── CaptureActivity.java     # 촬영 안내, 촬영, 사진·공유로 받기, 인식 결과 확인
 │   ├── ResultActivity.java      # 세 줄 요약, 할 일, 원문, 행동 버튼
 │   └── SettingsActivity.java    # 내 모드, 사진 보관, 알림 설정
-├── ocr/OcrHelper.java           # ML Kit 글자 인식
+├── ocr/                         # OcrHelper (ML Kit 글자 인식), ReadingOrder (읽는 순서 정렬)
 ├── privacy/PrivacyMasker.java   # 개인정보 가림 (정규식)
 ├── ai/
 │   ├── GeminiApi.java           # Retrofit 인터페이스
@@ -178,8 +201,8 @@ app/src/main/java/com/kms3735/threelinesfirst/
 
 | 단계 | 클래스 | 구현 방법 | 스레드 |
 | --- | --- | --- | --- |
-| **1. 촬영** | `CaptureActivity` | CameraX `ImageCapture`로 내부 저장소에 JPG 저장 | CameraX 내부 |
-| **2. 글자 인식** | `OcrHelper` | ML Kit `KoreanTextRecognizerOptions`로 인식 | ML Kit 콜백 |
+| **1. 촬영 · 입력** | `CaptureActivity` | CameraX `ImageCapture`로 내부 저장소에 JPG 저장<br>또는 불러온 사진·공유받은 이미지를 내부 저장소로 복사 | CameraX 내부 |
+| **2. 글자 인식** | `OcrHelper`<br>`ReadingOrder` | ML Kit `KoreanTextRecognizerOptions`로 인식<br>줄 위치로 정렬해 표의 항목과 내용을 같은 줄로 맞춤<br>공유받은 글은 이 단계를 건너뜀 | ML Kit 콜백 |
 | **3. 인식 결과 확인** | `CaptureActivity` | 글자가 너무 적으면(30자 미만) 다시 찍기 안내 | 메인 |
 | **4. 개인정보 가림** | `PrivacyMasker` | 주민번호 · 휴대전화(010) · 계좌 · 주소 · "성명:" 뒤 이름을 `●●●`로 치환 | 메인 |
 | **5. AI 요약** | `SummaryClient` | Retrofit으로 Gemini `generateContent` 호출, JSON 응답 고정 | Retrofit `enqueue` |
@@ -300,6 +323,7 @@ Retrofit(`enqueue`)과 ML Kit(`Task` 콜백)은 라이브러리가 알아서 백
 | :---: | :---: | --- | --- |
 | 0 | 준비 | 프로젝트 생성, 의존성·권한 추가<br>API 키 설정, 실제 안내문 샘플 5종 수집 | 빈 앱이 실제 기기에서 실행됨 |
 | 1 | 필수 | 촬영 안내 화면, CameraX 촬영<br>ML Kit 글자 인식, 인식 결과 확인 | 샘플 5종 모두 글자가 추출됨 |
+| 1-1 | 필수 | 사진·캡처 불러오기, 공유로 받기 (이미지·글) | 전자고지 캡처와 공유한 문자가 결과 화면에 표시됨 |
 | 2 | 필수 | `PrivacyMasker` + 단위 테스트<br>개인정보 동의 화면 | 주민번호·계좌·휴대전화가 모두 가려짐 |
 | 3 | 필수 | Gemini 호출, JSON 형식 검사<br>세 줄 카드·경고·체크박스 화면 | 샘플 5종이 세 줄 형식으로 표시됨 |
 | 4 | 필수 | `Verifier` + 단위 테스트<br>재요약과 경고 배지, 원문 나란히 보기 | 날짜를 틀린 요약에 경고 배지가 붙음 |
