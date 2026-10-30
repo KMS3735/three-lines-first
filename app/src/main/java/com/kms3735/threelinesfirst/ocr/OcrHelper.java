@@ -49,7 +49,8 @@ public class OcrHelper {
             for (Text.Line line : block.getLines()) {
                 Rect box = line.getBoundingBox();
                 if (box == null) continue;
-                lines.add(new ReadingOrder.Line(line.getText(), box.left, box.top, box.right, box.bottom));
+                lines.add(new ReadingOrder.Line(line.getText(), box.left, box.top, box.right, box.bottom,
+                        line.getAngle()));
             }
         }
         return lines.isEmpty() ? result.getText() : ReadingOrder.arrange(lines);
