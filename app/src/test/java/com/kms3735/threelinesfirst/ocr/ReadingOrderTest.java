@@ -32,6 +32,18 @@ public class ReadingOrderTest {
     }
 
     @Test
+    public void 기울어진_사진은_각도를_바로_세워_좌우_칸을_맞춘다() {
+        // 반시계로 4도 기운 사진: 오른쪽 칸(x=700)이 같은 줄인데도 약 49px 위에 찍힌다
+        float a = -4f;
+        String text = ReadingOrder.arrange(Arrays.asList(
+                new ReadingOrder.Line("[검진 기간]", 0, 300, 200, 340, a),
+                new ReadingOrder.Line("2026. 12. 31.", 0, 360, 200, 400, a),
+                new ReadingOrder.Line("[준비물]", 600, 251, 800, 291, a),
+                new ReadingOrder.Line("신분증", 600, 311, 800, 351, a)));
+        assertEquals("[검진 기간]  [준비물]\n2026. 12. 31.  신분증", text);
+    }
+
+    @Test
     public void 조금_기울어진_줄도_같은_행으로_본다() {
         String text = ReadingOrder.arrange(Arrays.asList(
                 line("오른쪽", 400, 112),
