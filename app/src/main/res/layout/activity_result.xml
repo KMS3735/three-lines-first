@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.ResultActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- 요약 중 · 실패 안내 -->
+            <TextView
+                android:id="@+id/txtStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="4dp"
+                android:text="@string/summarizing"
+                android:textSize="@dimen/text_body"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnRetry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:minHeight="72dp"
+                android:text="@string/retry"
+                android:textSize="@dimen/text_body"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/summaryGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <!-- 세 줄 카드 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="20dp"
+                        android:paddingBottom="20dp">
+
+                        <TextView
+                            style="@style/SummaryLabel"
+                            android:text="@string/label_what" />
+
+                        <TextView
+                            android:id="@+id/txtLine1"
+                            style="@style/SummaryLine" />
+
+                        <TextView
+                            style="@style/SummaryLabel"
+                            android:text="@string/label_todo" />
+
+                        <TextView
+                            android:id="@+id/txtLine2"
+                            style="@style/SummaryLine" />
+
+                        <TextView
+                            style="@style/SummaryLabel"
+                            android:text="@string/label_when_where" />
+
+                        <TextView
+                            android:id="@+id/txtLine3"
+                            style="@style/SummaryLine" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 경고 한 줄: 아이콘과 글자를 함께 -->
+                <TextView
+                    android:id="@+id/txtWarning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/warning_box"
+                    android:drawablePadding="12dp"
+                    android:gravity="center_vertical"
+                    android:lineBreakWordStyle="phrase"
+                    android:lineSpacingExtra="4dp"
+                    tools:targetApi="33"
+                    android:padding="16dp"
+                    android:textColor="@color/warning_text"
+                    android:textSize="@dimen/text_body"
+                    android:textStyle="bold"
+                    app:drawableStartCompat="@drawable/ic_warning" />
+
+                <TextView
+                    android:id="@+id/txtTodosTitle"
+                    style="@style/SummaryLabel"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/todos_title" />
+
+                <LinearLayout
+                    android:id="@+id/todoGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/summary_note"
+                    android:textSize="@dimen/text_body" />
+            </LinearLayout>
+
+            <!-- AI에 보낸 글 -->
+            <TextView
+                style="@style/SummaryLabel"
+                android:layout_marginTop="32dp"
+                android:text="@string/original_title" />
+
+            <TextView
+                android:id="@+id/txtOriginal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textIsSelectable="true"
+                android:textSize="@dimen/text_body" />
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnHome"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:minHeight="72dp"
+        android:text="@string/go_home"
+        android:textSize="@dimen/text_body"
+        android:textStyle="bold" />
+
+</LinearLayout>

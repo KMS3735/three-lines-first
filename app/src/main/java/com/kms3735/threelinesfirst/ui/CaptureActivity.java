@@ -51,7 +51,9 @@ public class CaptureActivity extends AppCompatActivity {
     private PreviewView preview;
     private View cameraGroup, resultGroup;
     private TextView txtResultTitle, txtResult;
-    private Button btnShoot, btnRetake;
+    private Button btnShoot, btnRetake, btnSummarize;
+    /** AI로 보낼, 개인정보를 가린 글 */
+    private String maskedText;
 
     /** 카메라로 시작했는지. 사진·공유로 들어왔으면 다시 찍기 대신 돌아가기 */
     private boolean fromCamera = true;
@@ -101,8 +103,14 @@ public class CaptureActivity extends AppCompatActivity {
         btnShoot = findViewById(R.id.btnShoot);
 
         btnRetake = findViewById(R.id.btnRetake);
+        btnSummarize = findViewById(R.id.btnSummarize);
 
         btnShoot.setOnClickListener(v -> takePhoto());
+        btnSummarize.setOnClickListener(v -> {
+            startActivity(new Intent(this, ResultActivity.class)
+                    .putExtra(ResultActivity.EXTRA_MASKED_TEXT, maskedText));
+            finish();
+        });
         btnRetake.setOnClickListener(v -> {
             if (fromCamera) showCamera();
             else finish();
@@ -173,7 +181,7 @@ public class CaptureActivity extends AppCompatActivity {
             return;
         }
         // 이미 글자로 된 안내문은 글자 인식 없이 그대로 쓴다
-        showResult(text.trim(), R.string.result_shared_text);
+        showResult(text.trim(), R.string.result_shared_text, true);
     }
 
     /** 불러오거나 공유받은 사진을 내부 저장소로 복사한 뒤 글자를 읽는다 */
@@ -221,6 +229,7 @@ public class CaptureActivity extends AppCompatActivity {
         txtResultTitle.setText(R.string.reading);
         txtResult.setText("");
         btnRetake.setVisibility(View.INVISIBLE);
+        btnSummarize.setVisibility(View.GONE);
     }
 
     private void takePhoto() {
@@ -264,12 +273,15 @@ public class CaptureActivity extends AppCompatActivity {
     }
 
     private void showResult(String text) {
-        showResult(text, OcrHelper.isEnough(text) ? R.string.result_ok : R.string.result_too_little);
+        boolean enough = OcrHelper.isEnough(text);
+        showResult(text, enough ? R.string.result_ok : R.string.result_too_little, enough);
     }
 
-    private void showResult(String text, int titleRes) {
+    /** canSummarize: 글자가 너무 적으면 요약으로 넘어가지 않고 다시 찍게 한다 */
+    private void showResult(String text, int titleRes, boolean canSummarize) {
         // 화면에도 AI로 보낼 글(개인정보를 가린 글)을 그대로 보여 준다. 가리기 전 원문은 저장하지 않는다
         PrivacyMasker.Result masked = PrivacyMasker.mask(text);
+        maskedText = masked.text;
         String note = masked.count > 0
                 ? getString(R.string.masked_count, masked.count)
                 : getString(R.string.masked_none);
@@ -279,8 +291,8 @@ public class CaptureActivity extends AppCompatActivity {
         resultGroup.setVisibility(View.VISIBLE);
         btnRetake.setText(fromCamera ? R.string.retake : R.string.go_back);
         btnRetake.setVisibility(View.VISIBLE);
+        btnSummarize.setVisibility(canSummarize && !text.isEmpty() ? View.VISIBLE : View.GONE);
         resetShootButton();
-        // 글자가 너무 적으면 요약으로 넘어가지 않는다 (요약 연결은 3단계)
     }
 
     private void showCamera() {

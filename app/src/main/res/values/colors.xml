@@ -1,0 +1,5 @@
+<resources>
+    <!-- 경고 상자: 배경과 글자의 명도 대비 4.5:1 이상 -->
+    <color name="warning_bg">#FFF3E0</color>
+    <color name="warning_text">#8A3B00</color>
+</resources>

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.ThreeLinesFirst" parent="Theme.Material3.DayNight.NoActionBar" />
 
     <style name="Theme.ThreeLinesFirst" parent="Base.Theme.ThreeLinesFirst" />
@@ -9,6 +9,27 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">28dp</item>
         <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- 세 줄 요약의 항목 이름과 내용 -->
+    <style name="SummaryLabel">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SummaryLine">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:lineSpacingExtra">4dp</item>
+        <item name="android:textSize">@dimen/text_summary</item>
+        <!-- 한국어를 낱말 단위로 줄바꿈 (Android 13 이상, 그 아래에서는 무시) -->
+        <item name="android:lineBreakWordStyle" tools:targetApi="33">phrase</item>
         <item name="android:textStyle">bold</item>
     </style>
 

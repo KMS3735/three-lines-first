@@ -98,10 +98,21 @@
         </ScrollView>
 
         <Button
-            android:id="@+id/btnRetake"
+            android:id="@+id/btnSummarize"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:minHeight="72dp"
+            android:text="@string/summarize"
+            android:textSize="@dimen/text_body"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnRetake"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:minHeight="72dp"
             android:text="@string/retake"
             android:textSize="@dimen/text_body"

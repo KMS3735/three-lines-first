@@ -21,6 +21,21 @@
     <string name="result_too_little">글자가 잘 안 보여요. 밝은 곳에서 다시 찍어 주세요.</string>
     <string name="result_empty">(읽은 글자가 없어요)</string>
     <string name="go_back">돌아가기</string>
+    <string name="summarize">세 줄로 요약하기</string>
+
+    <!-- 세 줄 요약 -->
+    <string name="summarizing">세 줄로 줄이는 중이에요…\n잠시만 기다려 주세요.</string>
+    <string name="summary_error">요약하지 못했어요.\n인터넷 연결을 확인하고 다시 눌러 주세요.</string>
+    <string name="summary_no_key">AI 키가 설정되지 않아 요약할 수 없어요.</string>
+    <string name="summary_limit">오늘 요약할 수 있는 횟수를 다 썼어요.\n내일 다시 해 주세요.</string>
+    <string name="retry">다시 요약하기</string>
+    <string name="label_what">무슨 안내문?</string>
+    <string name="label_todo">무엇을 해야 하나요?</string>
+    <string name="label_when_where">언제 · 어디서 · 얼마?</string>
+    <string name="todos_title">할 일</string>
+    <string name="summary_note">요약은 참고용이에요. 효력은 원문을 따르니 중요한 내용은 원문이나 기관에 꼭 확인하세요.</string>
+    <string name="original_title">읽은 글 (개인정보는 가렸어요)</string>
+    <string name="go_home">처음으로</string>
 
     <!-- 사진 불러오기, 공유로 받기 -->
     <string name="import_error">사진을 불러오지 못했어요.</string>

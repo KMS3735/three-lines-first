@@ -55,5 +55,9 @@ dependencies {
 
     // 글자 인식 (한국어, 기기 안에서 처리)
     implementation(libs.mlkit.text.korean)
+
+    // AI 요약: Gemini REST API 호출
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
     testImplementation(libs.junit)
 }
