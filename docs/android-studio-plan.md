@@ -222,7 +222,7 @@ public interface GeminiApi {
 ```
 
 - Base URL: `https://generativelanguage.googleapis.com/`
-- 모델: 무료 사용량이 넉넉한 Flash 계열 (예: `gemini-2.5-flash`, 개발 시점의 최신 Flash 모델로 교체)
+- 모델: 빠른 `gemini-3.5-flash-lite`로 요청하고, 형식이 틀리거나 서버가 붐비면 `gemini-3.5-flash`로 한 번 더 요청합니다. 모델이 닫히면 `SummaryClient`의 모델 이름만 바꿉니다.
 - 요청의 `generationConfig`에 `"responseMimeType": "application/json"`과 `responseSchema`를 넣어 아래 형식으로만 답하게 고정합니다.
 
 ```json
