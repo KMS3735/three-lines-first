@@ -58,11 +58,12 @@ public class SummaryClientTest {
 
     @Test
     public void 요청에_가린_글과_오늘_날짜와_JSON_형식이_들어간다() {
-        JsonObject body = SummaryClient.buildRequest("[이름] 님 관리비 안내", LocalDate.of(2026, 11, 10));
+        JsonObject body = SummaryClient.buildRequest("[이름] 님 관리비 안내", LocalDate.of(2026, 11, 10), "11월 30일은 원문에 없어");
         String userText = body.getAsJsonArray("contents").get(0).getAsJsonObject()
                 .getAsJsonArray("parts").get(0).getAsJsonObject().get("text").getAsString();
         assertTrue(userText.contains("2026-11-10"));
         assertTrue(userText.contains("[이름] 님 관리비 안내"));
+        assertTrue(userText.contains("11월 30일은 원문에 없어"));
 
         JsonObject config = body.getAsJsonObject("generationConfig");
         assertEquals("application/json", config.get("responseMimeType").getAsString());

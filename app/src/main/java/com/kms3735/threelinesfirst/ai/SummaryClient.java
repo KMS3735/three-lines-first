@@ -78,7 +78,12 @@ public class SummaryClient {
 
     /** 결과는 메인 스레드의 callback으로 돌아온다 */
     public void summarize(String maskedText, LocalDate today, Callback callback) {
-        request(buildRequest(maskedText, today), callback, 1);
+        summarize(maskedText, today, null, callback);
+    }
+
+    /** note: 다시 요약할 때 덧붙이는 주의 사항 (예: 원문에 없던 날짜). 없으면 null */
+    public void summarize(String maskedText, LocalDate today, String note, Callback callback) {
+        request(buildRequest(maskedText, today, note), callback, 1);
     }
 
     private void request(JsonObject body, Callback callback, int retriesLeft) {
@@ -115,11 +120,13 @@ public class SummaryClient {
         });
     }
 
-    static JsonObject buildRequest(String maskedText, LocalDate today) {
+    static JsonObject buildRequest(String maskedText, LocalDate today, String note) {
         JsonObject body = new JsonObject();
         body.add("systemInstruction", content(PROMPT));
 
-        JsonObject user = content("오늘 날짜: " + today + "\n\n[안내문]\n" + maskedText);
+        String text = "오늘 날짜: " + today + "\n\n[안내문]\n" + maskedText;
+        if (note != null) text += "\n\n[다시 확인]\n" + note;
+        JsonObject user = content(text);
         user.addProperty("role", "user");
         JsonArray contents = new JsonArray();
         contents.add(user);

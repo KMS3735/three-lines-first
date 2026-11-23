@@ -1,4 +1,6 @@
 <resources>
     <color name="warning_bg">#3E2723</color>
     <color name="warning_text">#FFCC80</color>
+    <color name="verified_bg">#1B2E1D</color>
+    <color name="verified_text">#A5D6A7</color>
 </resources>

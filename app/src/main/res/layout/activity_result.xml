@@ -47,6 +47,22 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
+                <!-- 원문 대조 배지: 통과(초록 체크) 또는 불일치(주황 경고) -->
+                <TextView
+                    android:id="@+id/txtVerify"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:drawablePadding="12dp"
+                    android:gravity="center_vertical"
+                    android:lineBreakWordStyle="phrase"
+                    android:lineSpacingExtra="4dp"
+                    android:padding="16dp"
+                    android:textSize="@dimen/text_body"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    tools:targetApi="33" />
+
                 <!-- 세 줄 카드 -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
@@ -85,6 +101,27 @@
                             style="@style/SummaryLine" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <!-- 원문 사진을 요약 바로 아래에 펼쳐 비교한다 -->
+                <Button
+                    android:id="@+id/btnPhoto"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:minHeight="@dimen/touch_min"
+                    android:text="@string/show_photo"
+                    android:textSize="@dimen/text_body"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/imgOriginal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/photo_desc"
+                    android:visibility="gone" />
 
                 <!-- 경고 한 줄: 아이콘과 글자를 함께 -->
                 <TextView

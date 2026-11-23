@@ -35,6 +35,15 @@
     <string name="todos_title">할 일</string>
     <string name="summary_note">요약은 참고용이에요. 효력은 원문을 따르니 중요한 내용은 원문이나 기관에 꼭 확인하세요.</string>
     <string name="original_title">읽은 글 (개인정보는 가렸어요)</string>
+
+    <!-- 원문 대조 -->
+    <string name="verified">날짜와 금액을 원문과 맞춰 봤어요.</string>
+    <string name="verify_failed">원문과 다른 날짜·금액이 있어요.\n%s\n원문 사진과 꼭 비교해 보세요.</string>
+    <string name="verify_failed_no_photo">원문과 다른 날짜·금액이 있어요.\n%s\n아래 읽은 글과 꼭 비교해 보세요.</string>
+    <string name="verify_note">지난 요약에 안내문에 없는 날짜나 금액(%s)이 있었어. 안내문에 적힌 날짜와 금액만 그대로 옮겨.</string>
+    <string name="show_photo">원문 사진 보기</string>
+    <string name="hide_photo">원문 사진 접기</string>
+    <string name="photo_desc">찍은 안내문 원문 사진</string>
     <string name="go_home">처음으로</string>
 
     <!-- 사진 불러오기, 공유로 받기 -->

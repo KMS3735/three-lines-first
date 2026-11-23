@@ -107,8 +107,10 @@ public class CaptureActivity extends AppCompatActivity {
 
         btnShoot.setOnClickListener(v -> takePhoto());
         btnSummarize.setOnClickListener(v -> {
+            // 공유받은 글은 사진이 없다 (photo == null)
             startActivity(new Intent(this, ResultActivity.class)
-                    .putExtra(ResultActivity.EXTRA_MASKED_TEXT, maskedText));
+                    .putExtra(ResultActivity.EXTRA_MASKED_TEXT, maskedText)
+                    .putExtra(ResultActivity.EXTRA_PHOTO_PATH, photo == null ? null : photo.getPath()));
             finish();
         });
         btnRetake.setOnClickListener(v -> {
