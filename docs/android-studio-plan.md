@@ -287,28 +287,34 @@ Room은 SQLite 위에서 동작하는 라이브러리로, `SQLiteOpenHelper` 대
 
 | Entity | 담는 내용 | 주요 필드 |
 | --- | --- | --- |
-| **`Notice`** | 안내문 정보 | `title` · `maskedText` · `imagePath` · `createdAt` |
+| **`Notice`** | 안내문 정보 | `maskedText` · `imagePath` · `createdAt` |
 | | 세 줄 요약 | `line1What` · `line2Todo` · `line3WhenWhere` · `warning` |
-| | 대조 결과 | `deadline` · `amount` · `phone` · `verified` |
+| | 요약 속 값 | `deadline` · `amounts` |
+| | 대조 결과 | `checkedCount` · `mismatches` |
 | **`Todo`** | 할 일 체크박스 | `noticeId` · `content` · `done` |
 
 ```java
 @Dao
 public interface NoticeDao {
-    @Query("SELECT * FROM notice ORDER BY createdAt DESC")
-    List<Notice> getAll();
+    // 목록: 최근 것부터, 할 일 진행 개수(todoTotal, todoDone)와 함께 NoticeItem으로 받는다
+    @Query("SELECT n.*, (SELECT COUNT(*) ...) AS todoTotal, (SELECT COUNT(*) ... done = 1) AS todoDone "
+            + "FROM notice n ORDER BY n.createdAt DESC")
+    List<NoticeItem> getList();
 
-    @Query("SELECT * FROM todo WHERE noticeId = :noticeId")
+    @Query("SELECT * FROM todo WHERE noticeId = :noticeId ORDER BY id")
     List<Todo> getTodos(long noticeId);
 
     @Insert long insert(Notice notice);
-    @Insert void insertTodos(List<Todo> todos);
     @Update void updateTodo(Todo todo);   // 체크박스 상태
-    @Delete void delete(Notice notice);
+    @Delete void delete(Notice notice);   // 할 일은 외래 키 CASCADE로 함께 지워짐
+
+    @Transaction                          // 요약과 할 일을 한 번에 저장
+    default void saveSummary(Notice notice, List<Todo> todos) { ... }
 }
 ```
 
 - 요약은 안내문 한 건에 하나뿐이라 `Notice`에 함께 두고, 개수가 정해지지 않은 할 일만 `Todo`로 나눕니다.
+- 안내문은 요약하기 전에 먼저 저장합니다(`line1What`이 null이면 요약 전). 요약에 실패해도 목록에서 눌러 다시 시도할 수 있고, 이미 요약한 안내문은 AI를 다시 부르지 않습니다.
 - `AppDatabase`는 `Room.databaseBuilder(...)`로 앱 전체에서 한 번만 만들어 씁니다.
 
 **DB와 네트워크는 메인 스레드에서 하지 않습니다**
@@ -320,8 +326,8 @@ private final Handler uiHandler = new Handler(Looper.getMainLooper());
 
 private void loadNotices() {
     new Thread(() -> {
-        List<Notice> notices = db.noticeDao().getAll();        // 백그라운드 스레드
-        uiHandler.post(() -> adapter.setItems(notices));       // 메인 스레드에서 화면 갱신
+        List<NoticeItem> items = db.noticeDao().getList();     // 백그라운드 스레드
+        uiHandler.post(() -> adapter.setItems(items));         // 메인 스레드에서 화면 갱신
     }).start();
 }
 ```
@@ -333,6 +339,8 @@ Retrofit(`enqueue`)과 ML Kit(`Task` 콜백)은 라이브러리가 알아서 백
 - 원문 사진은 앱 내부 저장소(`getFilesDir()`)에만 저장합니다. 다른 앱이 접근할 수 없고, 앱을 지우면 함께 지워집니다.
 - 사진 보관을 끄면 요약 후 파일을 지우고 `imagePath`를 비웁니다.
 - 가린 텍스트(`maskedText`)만 저장하고, 가리기 전 원문 텍스트는 저장하지 않습니다.
+- 요약하지 않고 촬영 화면을 나가면 찍은 사진을 지우고, 안내문을 지우면 원문 사진도 함께 지웁니다.
+- `allowBackup="false"`이고 `data_extraction_rules.xml`에서 클라우드 백업과 기기 간 이전을 모두 막아, 사진과 요약이 휴대폰 밖으로 복사되지 않습니다.
 - Android Studio의 **Device File Explorer**에서 `/data/data/com.kms3735.threelinesfirst/` 아래 `files/`(사진)와 `databases/`(Room DB)가 제대로 생겼는지 확인합니다.
 
 **SharedPreferences**

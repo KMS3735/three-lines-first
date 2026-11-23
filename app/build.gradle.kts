@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
     implementation(libs.material)
+    implementation(libs.recyclerview)
 
     // 촬영: 화면 위에 가이드 틀을 그리려고 CameraX 미리보기 사용
     implementation(libs.camera.camera2)
@@ -59,5 +60,9 @@ dependencies {
     // AI 요약: Gemini REST API 호출
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
+
+    // 저장: Room (Java라서 ksp 대신 annotationProcessor)
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
     testImplementation(libs.junit)
 }

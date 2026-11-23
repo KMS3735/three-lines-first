@@ -2,6 +2,10 @@ package com.kms3735.threelinesfirst.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -12,11 +16,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.kms3735.threelinesfirst.R;
+import com.kms3735.threelinesfirst.data.AppDatabase;
+import com.kms3735.threelinesfirst.data.NoticeItem;
 
-/** ① 안내문 목록. 목록은 5단계(Room)에서 채운다. */
+import java.util.List;
+
+/** ① 안내문 목록. 최근에 찍은 것부터 Room에서 읽어 보여 준다 */
 public class MainActivity extends AppCompatActivity {
+
+    private NoticeAdapter adapter;
+    private RecyclerView noticeList;
+    private TextView txtEmpty;
+    private final Handler uiHandler = new Handler(Looper.getMainLooper());
 
     /** 사진 선택기: 사용자가 고른 사진 한 장에만 접근하므로 저장소 권한이 필요 없다 */
     private final ActivityResultLauncher<PickVisualMediaRequest> pickPhoto =
@@ -48,6 +63,14 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        noticeList = findViewById(R.id.noticeList);
+        txtEmpty = findViewById(R.id.txtEmpty);
+        adapter = new NoticeAdapter(this, notice ->
+                startActivity(new Intent(this, ResultActivity.class)
+                        .putExtra(ResultActivity.EXTRA_NOTICE_ID, notice.id)));
+        noticeList.setLayoutManager(new LinearLayoutManager(this));
+        noticeList.setAdapter(adapter);
+
         findViewById(R.id.btnCapture).setOnClickListener(v ->
                 startActivity(new Intent(this, CaptureActivity.class)));
         findViewById(R.id.btnImport).setOnClickListener(v ->
@@ -58,5 +81,20 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null && !ConsentActivity.isAgreed(this)) {
             consent.launch(new Intent(this, ConsentActivity.class));
         }
+    }
+
+    /** 요약 화면에서 체크하거나 지우고 돌아오면 바로 반영되도록 화면에 보일 때마다 다시 읽는다 */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        new Thread(() -> {
+            List<NoticeItem> items = AppDatabase.get(this).noticeDao().getList();
+            uiHandler.post(() -> {
+                if (isDestroyed()) return;
+                adapter.setItems(items);
+                txtEmpty.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
+                noticeList.setVisibility(items.isEmpty() ? View.GONE : View.VISIBLE);
+            });
+        }).start();
     }
 }

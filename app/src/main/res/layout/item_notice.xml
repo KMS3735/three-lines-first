@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 안내문 목록 한 칸 (NoticeAdapter의 ViewHolder) -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardCornerRadius="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/touch_min"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- 무슨 안내문인지 (세 줄 요약의 첫 줄) -->
+        <TextView
+            android:id="@+id/txtTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_summary"
+            android:textStyle="bold" />
+
+        <!-- 마감까지 남은 날 -->
+        <TextView
+            android:id="@+id/txtDeadline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="@dimen/text_body"
+            android:textStyle="bold" />
+
+        <!-- 할 일 진행, 원문 대조 경고 -->
+        <TextView
+            android:id="@+id/txtInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="@dimen/text_body" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

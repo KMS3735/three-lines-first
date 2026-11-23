@@ -153,9 +153,10 @@ app/src/main/java/.../threelinesfirst/
 
 | 테이블 | 담는 내용 | 주요 열 |
 | --- | --- | --- |
-| **`notice`** | 안내문 정보 | `title` · `maskedText` · `imagePath` · `createdAt` |
+| **`notice`** | 안내문 정보 | `maskedText` · `imagePath` · `createdAt` |
 | | 세 줄 요약 | `line1What` · `line2Todo` · `line3WhenWhere` · `warning` |
-| | 대조 결과 | `deadline` · `amount` · `phone` · `verified` |
+| | 요약 속 값 | `deadline` · `amounts` |
+| | 대조 결과 | `checkedCount` · `mismatches` |
 | **`todo`** | 할 일 체크박스 | `noticeId` · `content` · `done` |
 
 Room으로 저장하고, DB 작업은 백그라운드 스레드에서 처리합니다. 원문 사진 보관을 끄면 `imagePath` 없이 요약 텍스트만 남습니다.

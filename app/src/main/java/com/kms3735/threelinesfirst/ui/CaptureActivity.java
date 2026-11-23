@@ -31,6 +31,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.kms3735.threelinesfirst.R;
+import com.kms3735.threelinesfirst.data.AppDatabase;
+import com.kms3735.threelinesfirst.data.Notice;
 import com.kms3735.threelinesfirst.ocr.OcrHelper;
 import com.kms3735.threelinesfirst.privacy.PrivacyMasker;
 
@@ -62,6 +64,8 @@ public class CaptureActivity extends AppCompatActivity {
     private ImageCapture imageCapture;
     private final OcrHelper ocr = new OcrHelper();
     private File photo;
+    /** 안내문으로 저장했는지. 저장하지 않고 나가면 찍은 사진을 지운다 */
+    private boolean saved;
 
     private final ActivityResultLauncher<String> cameraPermission =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
@@ -106,13 +110,7 @@ public class CaptureActivity extends AppCompatActivity {
         btnSummarize = findViewById(R.id.btnSummarize);
 
         btnShoot.setOnClickListener(v -> takePhoto());
-        btnSummarize.setOnClickListener(v -> {
-            // 공유받은 글은 사진이 없다 (photo == null)
-            startActivity(new Intent(this, ResultActivity.class)
-                    .putExtra(ResultActivity.EXTRA_MASKED_TEXT, maskedText)
-                    .putExtra(ResultActivity.EXTRA_PHOTO_PATH, photo == null ? null : photo.getPath()));
-            finish();
-        });
+        btnSummarize.setOnClickListener(v -> save());
         btnRetake.setOnClickListener(v -> {
             if (fromCamera) showCamera();
             else finish();
@@ -297,6 +295,24 @@ public class CaptureActivity extends AppCompatActivity {
         resetShootButton();
     }
 
+    /** 요약하기 전에 먼저 저장한다. 요약에 실패해도 목록에서 다시 시도할 수 있다 */
+    private void save() {
+        btnSummarize.setEnabled(false);
+        Notice notice = new Notice();
+        notice.maskedText = maskedText;
+        notice.imagePath = photo == null ? null : photo.getPath(); // 공유받은 글은 사진이 없다
+        notice.createdAt = System.currentTimeMillis();
+        new Thread(() -> {
+            long id = AppDatabase.get(this).noticeDao().insert(notice);
+            uiHandler.post(() -> {
+                saved = true;
+                startActivity(new Intent(this, ResultActivity.class)
+                        .putExtra(ResultActivity.EXTRA_NOTICE_ID, id));
+                finish();
+            });
+        }).start();
+    }
+
     private void showCamera() {
         if (photo != null) photo.delete();
         resultGroup.setVisibility(View.GONE);
@@ -312,5 +328,6 @@ public class CaptureActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         ocr.close();
+        if (isFinishing() && !saved && photo != null) photo.delete();
     }
 }
