@@ -7,7 +7,7 @@ activityKtx = "1.13.0"
 constraintlayout = "2.2.2"
 camerax = "1.6.2"
 mlkitKorean = "16.0.1"
-retrofit = "2.11.0"
+retrofit = "3.0.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
