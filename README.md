@@ -61,7 +61,7 @@
 | **촬영** | 촬영 안내<br>글자 인식<br>개인정보 가림 | 가이드 틀로 찍고, 기기 안에서 글자를 읽은 뒤<br>주민번호·계좌·휴대전화·주소·이름을 가림 |
 | **온라인 안내문** | 사진·캡처 불러오기<br>공유로 받기 | 전자고지 화면 캡처나 사진을 불러와 같은 방식으로 읽음<br>문자·카카오톡에서 공유한 글은 글자 인식 없이 바로 요약 |
 | **요약** | 세 줄 카드<br>할 일 체크박스<br>원문 함께 보기<br>이해가 안 돼요 | 큰 글씨 카드 아래 원문 사진을 항상 표시<br>"이해가 안 돼요"를 누르면 더 쉬운 말로 다시 요약 |
-| **행동** | 읽어주기<br>달력 등록<br>전화 걸기<br>가족에게 보내기 | 버튼 하나로 음성 안내, 마감일 등록,<br>기관 전화, 메신저 공유 |
+| **행동** | 읽어주기<br>달력 등록<br>전화 걸기<br>가족에게 보내기<br>장소 보기 | 버튼 하나로 음성 안내, 마감일 등록,<br>기관 전화, 메신저 공유<br>가야 할 기관을 내 위치와 함께 지도에 표시 |
 | **알림** | 마감일 알림 | 마감일 3일 전과 당일에 알림 |
 | **설정** | 내 모드<br>원문 사진 보관 | 쉬운 말·큰 글씨를 한 번 저장하면 모든 문서에 적용<br>요약 후 원문 사진을 남길지 선택 |
 
@@ -111,6 +111,7 @@
   <img src="https://img.shields.io/badge/Room-4CAF50?style=flat-square&logo=sqlite&logoColor=white" alt="Room">
   <img src="https://img.shields.io/badge/Retrofit-48B983?style=flat-square&logo=square&logoColor=white" alt="Retrofit">
   <img src="https://img.shields.io/badge/Firebase-DD2C00?style=flat-square&logo=firebase&logoColor=white" alt="Firebase">
+  <img src="https://img.shields.io/badge/Google%20Maps-4285F4?style=flat-square&logo=googlemaps&logoColor=white" alt="Google Maps">
 </p>
 
 | 분야 | 기술 | 쓰는 곳 |
@@ -123,7 +124,8 @@
 | **저장** | Room · SharedPreferences · 내부 저장소 | 안내문·할 일, 내 모드 설정, 원문 사진 |
 | **백그라운드** | Thread · Handler | DB 작업, 화면 갱신 |
 | **알림 · 행동** | AlarmManager · TextToSpeech · 암시적 인텐트 | 마감일 알림, 읽어주기, 달력·전화·공유 |
-| **가족 공유** | Firebase Authentication · Realtime Database | 자녀 계정에 요약 공유 |
+| **위치 · 지도** | Fused Location Provider · Google Maps SDK · Geocoder | 내 위치와 가야 할 기관을 지도에 표시 |
+| **가족 공유** | Firebase Authentication · Cloud Firestore | 자녀 계정에 요약 공유 |
 
 ## 프로젝트 구조 (예정)
 
@@ -134,6 +136,7 @@ app/src/main/java/.../threelinesfirst/
 │   ├── ConsentActivity.java     # 첫 실행 개인정보 동의
 │   ├── CaptureActivity.java     # 촬영 안내, 촬영, 사진·공유로 받기
 │   ├── ResultActivity.java      # 세 줄 요약, 할 일, 원문, 행동 버튼
+│   ├── MapActivity.java         # 장소 지도 (내 위치 + 기관 마커)
 │   └── SettingsActivity.java    # 내 모드, 사진 보관, 알림 설정
 ├── ocr/                         # OcrHelper (ML Kit 글자 인식), ReadingOrder (읽는 순서 정렬)
 ├── privacy/PrivacyMasker.java   # 개인정보 가림
@@ -169,14 +172,16 @@ Room으로 저장하고, DB 작업은 백그라운드 스레드에서 처리합�
    ```properties
    GEMINI_API_KEY=발급받은_키
    ```
-3. 가족 자동 공유를 쓰려면 [Firebase 콘솔](https://console.firebase.google.com/)에서 Android 앱을 등록하고 `google-services.json`을 `app/` 폴더에 넣습니다.
-4. 카메라 기능을 쓰려면 에뮬레이터 대신 실제 안드로이드 기기에서 실행하는 것을 권장합니다.
+3. 장소 지도를 쓰려면 [Google Cloud 콘솔](https://console.cloud.google.com/)에서 Maps SDK for Android를 켜고 키를 발급받아, 같은 파일에 `MAPS_API_KEY=발급받은_지도_키`로 추가합니다.
+4. 가족 자동 공유를 쓰려면 [Firebase 콘솔](https://console.firebase.google.com/)에서 Android 앱을 등록하고 `google-services.json`을 `app/` 폴더에 넣습니다.
+5. 카메라 기능을 쓰려면 에뮬레이터 대신 실제 안드로이드 기기에서 실행하는 것을 권장합니다.
 
 ## 개인정보 보호
 
 - 첫 실행 때 어떤 정보가 외부 AI로 전송되는지 안내하고 동의를 받습니다.
 - 개인정보는 AI로 보내기 전에 기기 안에서 먼저 가립니다.
 - 원문 사진은 외부로 전송하지 않고, 기기에 보관할지도 사용자가 고릅니다.
+- 내 위치는 장소 지도를 볼 때 기기 안에서만 쓰고, AI로 보내거나 저장하지 않습니다.
 - 사진을 불러올 때는 사진 선택기를 써서, 사용자가 고른 사진 한 장에만 접근합니다. 공유로 받은 글도 똑같이 개인정보를 가린 뒤에만 AI로 보냅니다.
 - 기기 안 글자 인식으로 끝내 읽히지 않는 안내문은, 사용자가 다시 동의한 경우에만 사진을 AI로 보냅니다.
 - 요약은 이해를 돕기 위한 참고용이며, 효력은 항상 원문을 따릅니다.

@@ -41,13 +41,17 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:2.6.1")
 
     // 통신
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+
+    // 장소 지도 보기: 현재 위치와 지도 (추가 범위에서 연결)
+    implementation("com.google.android.gms:play-services-location:21.4.0")
+    implementation("com.google.android.gms:play-services-maps:20.1.0")
 
     // 가족 자동 공유 (추가 범위에서 연결)
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-firestore")
 
     testImplementation("junit:junit:4.13.2")
 }
@@ -64,6 +68,13 @@ Gemini API 키는 `local.properties`에 두고 `BuildConfig`로 읽습니다. `l
 ```properties
 # local.properties
 GEMINI_API_KEY=발급받은_키
+MAPS_API_KEY=발급받은_지도_키
+```
+
+지도 키(`MAPS_API_KEY`)는 Google Cloud 콘솔에서 Maps SDK for Android를 켜고 발급하며, 앱 패키지 이름으로 사용을 제한합니다. 지도 키는 `AndroidManifest.xml`의 `com.google.android.geo.API_KEY` 메타데이터로 들어가야 하므로, 같은 `local.properties`에서 읽어 `manifestPlaceholders`로 넣습니다.
+
+```kotlin
+manifestPlaceholders["MAPS_API_KEY"] = localProps.getProperty("MAPS_API_KEY", "")
 ```
 
 ```kotlin
@@ -97,6 +108,8 @@ String key = BuildConfig.GEMINI_API_KEY;
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
 
 | 권한 | 쓰는 곳 | 요청 시점 |
@@ -105,6 +118,16 @@ String key = BuildConfig.GEMINI_API_KEY;
 | **`INTERNET`** | Gemini API 호출 | 설치 시 자동 |
 | **`POST_NOTIFICATIONS`** | 마감일 알림 (Android 13 이상) | 처음 알림을 켤 때 (런타임 요청) |
 | **`RECEIVE_BOOT_COMPLETED`** | 재부팅 후 알림 다시 예약 | 설치 시 자동 |
+| **`ACCESS_FINE_LOCATION`**<br>**`ACCESS_COARSE_LOCATION`** | 장소 지도에 내 위치 표시 | "장소 보기"를 처음 누를 때 (런타임 요청)<br>거절해도 장소 표시는 그대로 |
+
+**장소 지도 보기**
+
+안내문에 적힌 기관(행정복지센터, 구청, 검진기관 등)을 지도에 표시해, 어르신이 어디로 가야 하는지 바로 볼 수 있게 합니다.
+
+- AI 요약 결과에 장소 이름(`place`) 칸을 추가하고, `Geocoder`로 장소 이름을 좌표로 바꿉니다.
+- `FusedLocationProviderClient.getLastLocation()`으로 현재 위치를 받아, 같은 이름의 기관이 여러 곳이면 가까운 곳을 고릅니다.
+- `SupportMapFragment`에 장소 마커와 내 위치(`setMyLocationEnabled`)를 함께 보여 줍니다.
+- 위치는 기기 안에서 지도 표시에만 쓰고, AI로 보내거나 저장하지 않습니다.
 
 달력 등록, 전화 걸기, 공유는 모두 암시적 인텐트로 다른 앱에 맡기므로 **따로 권한이 필요 없습니다.**
 
@@ -143,7 +166,8 @@ String key = BuildConfig.GEMINI_API_KEY;
 | **① 안내문 목록** | `MainActivity`<br>`activity_main.xml` · `item_notice.xml` | RecyclerView + CardView<br>촬영 버튼, 사진 불러오기 버튼 |
 | **② 촬영 안내** | `CaptureActivity`<br>`activity_capture.xml` | CameraX `PreviewView` + 가이드 틀<br>인식 결과 확인<br>사진·공유로 들어오면 카메라를 건너뜀 |
 | **③ 세 줄 요약** | `ResultActivity`<br>`activity_result.xml` | 세 줄 카드, 경고, 체크박스<br>대조 배지, 원문 사진 |
-| **④ 행동 연결** | `ResultActivity` 아래쪽<br>같은 레이아웃 | 읽어주기 · 달력 · 전화 · 공유 버튼 |
+| **④ 행동 연결** | `ResultActivity` 아래쪽<br>같은 레이아웃 | 읽어주기 · 달력 · 전화 · 공유 · 장소 보기 버튼 |
+| **장소 지도** | `MapActivity`<br>`activity_map.xml` | `SupportMapFragment`<br>기관 마커, 내 위치 |
 | **설정** | `SettingsActivity`<br>`activity_settings.xml` | 쉬운 말, 큰 글씨, 사진 보관, 알림 스위치 |
 
 **화면 이동 흐름**
@@ -175,6 +199,7 @@ app/src/main/java/com/kms3735/threelinesfirst/
 │   ├── ConsentActivity.java     # 첫 실행 개인정보 동의
 │   ├── CaptureActivity.java     # 촬영 안내, 촬영, 사진·공유로 받기, 인식 결과 확인
 │   ├── ResultActivity.java      # 세 줄 요약, 할 일, 원문, 행동 버튼
+│   ├── MapActivity.java         # 장소 지도: 내 위치 + 기관 마커
 │   └── SettingsActivity.java    # 내 모드, 사진 보관, 알림 설정
 ├── ocr/                         # OcrHelper (ML Kit 글자 인식), ReadingOrder (읽는 순서 정렬)
 ├── privacy/PrivacyMasker.java   # 개인정보 가림 (정규식)
@@ -328,8 +353,8 @@ Retrofit(`enqueue`)과 ML Kit(`Task` 콜백)은 라이브러리가 알아서 백
 | 3 | 필수 | Gemini 호출, JSON 형식 검사<br>세 줄 카드·경고·체크박스 화면 | 샘플 5종이 세 줄 형식으로 표시됨 |
 | 4 | 필수 | `Verifier` + 단위 테스트<br>재요약과 경고 배지, 원문 나란히 보기 | 날짜를 틀린 요약에 경고 배지가 붙음 |
 | 5 | 필수 | Room 저장, 안내문 목록 화면 | 앱을 다시 켜도 목록과 체크 상태 유지 |
-| 6 | 추가 | 읽어주기, 달력 등록, 전화 걸기<br>가족에게 보내기, 마감일 알림 | 버튼마다 해당 앱이 열리고 알림 예약 |
-| 7 | 추가 | 쉬운 말·큰 글씨 모드, "이해가 안 돼요"<br>Firebase 가족 공유 | 설정이 모든 문서에 적용됨 |
+| 6 | 추가 | 읽어주기, 달력 등록, 전화 걸기<br>가족에게 보내기, 마감일 알림<br>장소 지도 보기 (현재 위치 + 기관 마커) | 버튼마다 해당 앱이 열리고 알림 예약<br>안내문의 기관이 지도에 표시됨 |
+| 7 | 추가 | 쉬운 말·큰 글씨 모드, "이해가 안 돼요"<br>Firebase 가족 공유 (Authentication + Cloud Firestore) | 설정이 모든 문서에 적용됨<br>가족 휴대폰에 요약이 바로 나타남 |
 | 8 | 마무리 | 샘플로 정확도·접근성 점검<br>서명된 APK 빌드 | 실기기에서 전체 흐름이 동작함 |
 
 ## 10. 테스트와 빌드
