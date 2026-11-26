@@ -182,6 +182,11 @@ public class ResultActivity extends AppCompatActivity {
         findViewById(R.id.btnList).setOnClickListener(v -> goHome());
         txtVerify.setOnClickListener(v -> showPage(2));
         ((TextView) findViewById(R.id.txtNote)).setText(KeepWords.of(getString(R.string.summary_note)));
+        SpannableString heading = new SpannableString(KeepWords.of(getString(R.string.summary_heading)));
+        String mark = KeepWords.of(getString(R.string.summary_heading_mark));
+        heading.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.accent_text)),
+                0, mark.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ((TextView) findViewById(R.id.txtSummaryHeading)).setText(heading);
         btnPhoto.setOnClickListener(v -> togglePhotoSize());
         btnRetry.setOnClickListener(v -> summarize());
         showPage(0);

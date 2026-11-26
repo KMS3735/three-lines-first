@@ -61,6 +61,8 @@
     <string name="summary_no_key">AI 키가 설정되지 않아 요약할 수 없어요.</string>
     <string name="summary_limit">오늘 요약할 수 있는 횟수를 다 썼어요.\n내일 다시 해 주세요.</string>
     <string name="retry">다시 요약하기</string>
+    <string name="summary_heading">세 줄로 정리했어요</string>
+    <string name="summary_heading_mark">세 줄</string>
     <string name="label_what">무슨 안내문?</string>
     <string name="label_todo">무엇을 해야 하나요?</string>
     <string name="label_when_where">언제 · 어디서 · 얼마?</string>

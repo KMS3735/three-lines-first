@@ -100,6 +100,18 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
+                <!-- "세 줄로 정리했어요": "세 줄"은 코드에서 파란색으로 -->
+                <TextView
+                    android:id="@+id/txtSummaryHeading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:accessibilityHeading="true"
+                    android:paddingHorizontal="4dp"
+                    android:textColor="@color/ink"
+                    android:textSize="@dimen/text_title"
+                    android:textStyle="bold" />
+
                 <!-- 통과(초록 체크) 또는 불일치(주황 경고, 누르면 3쪽 원문으로) -->
                 <TextView
                     android:id="@+id/txtVerify"
