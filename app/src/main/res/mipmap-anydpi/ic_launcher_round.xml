@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 파란 바탕 위 안내문 종이, 1번 줄만 노랗게. 그림은 drawable-xxxhdpi/ic_launcher_art.png -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@drawable/ic_launcher_background" />
-    <foreground android:drawable="@drawable/ic_launcher_foreground" />
-    <monochrome android:drawable="@drawable/ic_launcher_foreground" />
+    <background android:drawable="@color/accent" />
+    <foreground android:drawable="@drawable/ic_launcher_art" />
 </adaptive-icon>
