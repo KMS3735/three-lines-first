@@ -16,7 +16,6 @@
     <color name="tone_gray_text">#A9B1BB</color>
     <color name="warning_bg">#3E2A1E</color>
     <color name="warning_text">#FFC59A</color>
-    <color name="mark">#5C4B16</color>
     <color name="verified_bg">#1B2E1D</color>
     <color name="verified_text">#A5D6A7</color>
 </resources>

@@ -47,15 +47,6 @@ public class VerifierTest {
     }
 
     @Test
-    public void 원문_속_날짜와_금액_자리를_찾는다() {
-        String text = "2026년 11월 25일까지 152,000원을 내세요. 문의 02-2148-3520";
-        List<String> found = new ArrayList<>();
-        for (int[] s : Verifier.valueSpans(text)) found.add(text.substring(s[0], s[1]));
-        // 날짜는 연도까지 한 덩어리, 금액은 쉼표 숫자. 전화번호는 칠하지 않는다
-        assertEquals(Arrays.asList("2026년 11월 25일", "152,000원"), found);
-    }
-
-    @Test
     public void 정답_요약은_5종_모두_통과() throws IOException {
         Summary[] answers = {
                 summary("2026년 11월 25일까지 가나은행 계좌로 152,000원을 내세요.", "2026-11-25", 152000L),

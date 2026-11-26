@@ -24,7 +24,6 @@ import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.view.View;
@@ -209,7 +208,7 @@ public class ResultActivity extends AppCompatActivity {
     private void onLoaded(Notice n, List<Todo> todos) {
         notice = n;
         maskedText = n.maskedText == null ? "" : n.maskedText;
-        showOriginal();
+        ((TextView) findViewById(R.id.txtOriginal)).setText(maskedText);
         photoPath = n.imagePath;
         if (photoPath != null && !new File(photoPath).exists()) photoPath = null;
         findViewById(R.id.photoGroup).setVisibility(photoPath != null ? View.VISIBLE : View.GONE);
@@ -505,34 +504,8 @@ public class ResultActivity extends AppCompatActivity {
         if (tts != null) tts.shutdown();
     }
 
-    /** 3쪽 원문 글: 날짜·금액을 노랗게 칠해 요약과 맞춰 보기 쉽게 한다 */
-    private void showOriginal() {
-        int mark = ContextCompat.getColor(this, R.color.mark);
-        SpannableString text = new SpannableString(maskedText);
-        List<int[]> spans = Verifier.valueSpans(maskedText);
-        for (int[] s : spans) {
-            text.setSpan(new BackgroundColorSpan(mark), s[0], s[1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-        ((TextView) findViewById(R.id.txtOriginal)).setText(text);
-
-        TextView note = findViewById(R.id.txtMarkNote);
-        note.setVisibility(spans.isEmpty() ? View.GONE : View.VISIBLE);
-        // 낱말 단위 줄바꿈 글자를 넣은 뒤에 자리를 찾아야 칠할 곳이 어긋나지 않는다
-        String noteText = KeepWords.of(getString(R.string.original_mark_note));
-        String marked = KeepWords.of(getString(R.string.original_mark_word));
-        SpannableString noteSpan = new SpannableString(noteText);
-        int at = noteText.indexOf(marked);
-        if (at >= 0) noteSpan.setSpan(new BackgroundColorSpan(mark), at, at + marked.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        note.setText(noteSpan);
-    }
-
     /** 통과면 초록 체크, 다르면 주황 경고(누르면 3쪽 원문으로). 대조할 값이 없으면 숨긴다 */
     private void showVerifyBadge(int checked, String mismatches) {
-        // 요약에만 있고 원문에는 없는 값은 원문 글 안에 칠할 자리가 없으므로, 3쪽 원문 글 위에 따로 알린다
-        TextView missing = findViewById(R.id.txtOriginalMissing);
-        boolean hasMissing = mismatches != null && !mismatches.isEmpty();
-        missing.setVisibility(hasMissing ? View.VISIBLE : View.GONE);
-        if (hasMissing) missing.setText(KeepWords.of(getString(R.string.original_missing, mismatches)));
         if (checked == 0) {
             txtVerify.setVisibility(View.GONE);
             return;

@@ -70,9 +70,6 @@
     <string name="summary_note">요약은 참고용이에요. 효력은 원문을 따르니 중요한 내용은 원문이나 기관에 꼭 확인하세요.</string>
     <string name="photo_title">찍은 사진</string>
     <string name="original_title">읽은 글 · 개인정보는 가렸어요</string>
-    <string name="original_mark_note">노랗게 칠한 곳이 날짜와 금액이에요. 요약과 같은지 맞춰 보세요.</string>
-    <string name="original_mark_word">노랗게 칠한 곳</string>
-    <string name="original_missing">요약에 나온 %s은(는) 이 글에서 찾지 못했어요. 원문과 꼭 비교해 보세요.</string>
 
     <!-- 원문 대조 -->
     <string name="verified">날짜와 금액을 원문과 맞춰 봤어요.</string>

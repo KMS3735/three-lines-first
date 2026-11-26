@@ -337,39 +337,12 @@
                     android:text="@string/original_title"
                     tools:targetApi="28" />
 
-                <!-- 요약에만 있고 원문에서 찾지 못한 값 -->
-                <TextView
-                    android:id="@+id/txtOriginalMissing"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:background="@drawable/warning_box"
-                    android:drawablePadding="10dp"
-                    android:gravity="center_vertical"
-                    android:lineSpacingExtra="4dp"
-                    android:padding="14dp"
-                    android:textColor="@color/warning_text"
-                    android:textSize="@dimen/text_body"
-                    android:textStyle="bold"
-                    android:visibility="gone"
-                    app:drawableStartCompat="@drawable/ic_warning" />
-
-                <TextView
-                    android:id="@+id/txtMarkNote"
-                    style="@style/Body"
-                    android:layout_marginBottom="8dp"
-                    android:paddingHorizontal="4dp"
-                    android:textColor="@color/sub"
-                    android:visibility="gone" />
-
                 <TextView
                     android:id="@+id/txtOriginal"
                     style="@style/Body"
                     android:background="@drawable/bg_card"
                     android:elevation="1dp"
-                    android:lineSpacingExtra="6dp"
                     android:padding="16dp"
-                    android:textColor="@color/ink"
                     android:textIsSelectable="true" />
 
                 <TextView
