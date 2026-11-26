@@ -108,6 +108,24 @@ public final class Verifier {
         return new Result(new ArrayList<>(mismatches), checked);
     }
 
+    /**
+     * 글 속 날짜·금액의 자리 [시작, 끝). 요약 3쪽에서 원문 글에 색을 칠할 때 쓴다.
+     * 대조와 같은 패턴을 같은 순서(날짜 → 큰 단위 금액)로 찾으므로, 대조가 본 값과 칠한 값이 같다
+     */
+    public static List<int[]> valueSpans(String text) {
+        List<int[]> spans = new ArrayList<>();
+        StringBuilder rest = new StringBuilder(text);
+        for (Pattern p : new Pattern[]{FULL_DATE, MONTH_DAY, MAN_WON, CHEON_WON, COMMA_NUMBER, PLAIN_WON}) {
+            take(rest, p, m -> {
+                // 쉼표 금액과 연도가 있는 날짜는 패턴이 "원"·"일" 앞에서 끝나므로 바로 뒤 글자까지 함께 칠한다
+                int end = m.end();
+                if (end < text.length() && "원일".indexOf(text.charAt(end)) >= 0) end++;
+                spans.add(new int[]{m.start(), end});
+            });
+        }
+        return spans;
+    }
+
     /** 글 속 금액을 원 단위로. 겹치는 표기는 큰 단위부터 찾고 찾은 자리는 지운다 */
     static Set<Long> amounts(String text) {
         Set<Long> out = new HashSet<>();

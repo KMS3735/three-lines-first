@@ -170,7 +170,7 @@ String key = BuildConfig.GEMINI_API_KEY;
 | **개인정보 동의** | `ConsentActivity`<br>`activity_consent.xml` | 전송 범위 그림, 동의 버튼 |
 | **① 안내문 목록** | `MainActivity`<br>`activity_main.xml` · `item_notice.xml` | 인사말, 가장 급한 안내문 카드, 마감 임박·진행 중·마감 지남 개수<br>RecyclerView + CardView (마감이 가까운 순, 날짜 칸)<br>사진 불러오기 · 안내문 찍기 버튼 |
 | **② 촬영 안내** | `CaptureActivity`<br>`activity_capture.xml` | CameraX `PreviewView` + 가이드 틀<br>인식 결과 확인<br>사진·공유로 들어오면 카메라를 건너뜀 |
-| **③ 세 줄 요약** | `ResultActivity`<br>`activity_result.xml` | 세 쪽으로 나눠 위쪽 탭과 아래 버튼으로 넘김<br>1 요약: 대조 배지, 번호 붙은 세 줄 카드, 경고, 듣기<br>3 원문: 원문 사진(크게 보기), 가린 글, 지우기 |
+| **③ 세 줄 요약** | `ResultActivity`<br>`activity_result.xml` | 세 쪽으로 나눠 위쪽 탭과 아래 버튼으로 넘김<br>1 요약: 대조 배지, 번호 붙은 세 줄 카드, 경고, 듣기<br>3 원문: 원문 사진(크게 보기), 가린 글(날짜·금액 노란 칠, 찾지 못한 값은 위에 주황 상자), 지우기 |
 | **④ 행동 연결** | `ResultActivity` 2쪽<br>`item_todo.xml` · `item_tile.xml` | 할 일 체크박스<br>바로 하기 칸: 달력 · 문의 전화 · 가족에게 보내기 · 지도<br>마감일 알림 안내 |
 | **장소 지도** | `MapActivity`<br>`activity_map.xml` | `SupportMapFragment`<br>기관 마커, 내 위치<br>아래 판: 주소, 가기 전에 전화로 묻기 |
 | **설정** | `SettingsActivity`<br>`activity_settings.xml` | 쉬운 말, 큰 글씨, 사진 보관, 알림 스위치 |
@@ -284,7 +284,7 @@ public interface GeminiApi {
 
 - 원문에 "까지", "마감", "기한", "납기"가 있는 줄의 날짜를 마감일 후보로 보고, 마감일은 후보 중 하나여야 합니다. 부과 기간이나 위반 일시처럼 원문에 있지만 마감일이 아닌 날짜를 고르면 잡아냅니다.
 - 글자 인식 오류를 견딥니다: 월을 "원"으로 읽은 날짜(`10원 31일`), 쉼표 옆 공백(`152, 000`), 표 금액의 "원" 빠짐(`152,000`), "원"을 `l`로 읽음(`40,000l`).
-- 다르면 다른 값을 알려 주며 한 번 다시 요약합니다. 그래도 다르면 주황 경고 배지에 그 값을 보여 주고, 원문 사진을 요약 바로 아래에 펼쳐 비교하게 합니다. 통과하면 초록 체크 배지를 붙입니다.
+- 다르면 다른 값을 알려 주며 한 번 다시 요약합니다. 그래도 다르면 주황 경고 배지에 그 값을 보여 주고, 원문 사진을 요약 바로 아래에 펼쳐 비교하게 합니다. 통과하면 초록 체크 배지를 붙입니다. 3쪽 원문 글에서는 날짜·금액 자리를 노랗게 칠하고(`Verifier.valueSpans`), 원문에서 찾지 못한 값은 글 위 주황 상자로 알려 줍니다.
 - `VerifierTest`는 샘플 5종의 실제 인식 결과(`app/src/test/resources/ocr/`)로 정답 통과와 틀린 날짜·금액 검출을 확인합니다.
 
 ## 8. 데이터 저장

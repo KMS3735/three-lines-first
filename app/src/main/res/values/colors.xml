@@ -19,6 +19,8 @@
     <!-- 경고 상자, 마감 임박 -->
     <color name="warning_bg">#FBEDE3</color>
     <color name="warning_text">#9A4310</color>
+    <!-- 원문 글 속 날짜·금액 칠하기 -->
+    <color name="mark">#F8E7A6</color>
     <!-- 원문 대조 통과 배지 -->
     <color name="verified_bg">#E7F2EA</color>
     <color name="verified_text">#2F6B3E</color>
