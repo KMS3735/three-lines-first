@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 요약 2쪽 할 일 한 줄. 흰 둥근 칸에 체크박스 -->
+<CheckBox xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="2dp"
+    android:layout_marginTop="8dp"
+    android:background="@drawable/bg_card"
+    android:elevation="1dp"
+    android:minHeight="64dp"
+    android:paddingVertical="12dp"
+    android:paddingStart="10dp"
+    android:paddingEnd="16dp"
+    android:textColor="@color/ink"
+    android:textSize="@dimen/text_body" />

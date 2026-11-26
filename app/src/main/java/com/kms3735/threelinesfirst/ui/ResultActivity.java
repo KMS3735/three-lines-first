@@ -7,8 +7,10 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -20,12 +22,16 @@ import android.provider.CalendarContract;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
-import android.util.TypedValue;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,12 +39,14 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.button.MaterialButton;
 import com.kms3735.threelinesfirst.BuildConfig;
 import com.kms3735.threelinesfirst.R;
 import com.kms3735.threelinesfirst.ai.Summary;
@@ -48,6 +56,7 @@ import com.kms3735.threelinesfirst.data.Notice;
 import com.kms3735.threelinesfirst.data.NoticeDao;
 import com.kms3735.threelinesfirst.data.Todo;
 import com.kms3735.threelinesfirst.util.DeadlineAlarm;
+import com.kms3735.threelinesfirst.util.KeepWords;
 import com.kms3735.threelinesfirst.verify.Verifier;
 
 import java.io.File;
@@ -60,6 +69,7 @@ import java.util.Locale;
 
 /**
  * ③ 세 줄 요약: 개인정보를 가린 글을 AI로 요약해 세 줄, 경고, 할 일 체크박스로 보여 준다.
+ * 한 화면이 길어지지 않게 1 요약 / 2 할 일·바로 하기 / 3 원문 세 쪽으로 나눠 탭과 아래 버튼으로 넘긴다.
  * 요약 속 날짜·금액은 원문과 대조해, 다르면 한 번 다시 요약하고 그래도 다르면 경고 배지를 붙인다.
  * 안내문은 Room에 저장돼 있고, 이미 요약한 안내문은 AI를 다시 부르지 않고 저장된 요약을 보여 준다.
  * ④ 행동 연결: 읽어 주기, 달력, 전화, 가족에게 보내기, 장소 지도. 달력·전화·공유는 다른 앱에 맡겨 권한이 필요 없다.
@@ -73,11 +83,19 @@ public class ResultActivity extends AppCompatActivity {
     /** 무료 사용량을 지키려고 하루 요청 횟수를 제한한다 */
     private static final int DAILY_LIMIT = 30;
 
-    private TextView txtStatus, txtVerify, txtLine1, txtLine2, txtLine3, txtWarning, txtTodosTitle;
-    private Button btnRetry, btnPhoto, btnSpeak, btnCalendar, btnDial, btnShare, btnMap;
+    private TextView txtStatus, txtVerify, txtLine1, txtLine2, txtLine3, txtWarning, txtTodoCount, txtAlarm;
+    private MaterialButton btnRetry, btnPhoto, btnLeft, btnRight;
+    private final MaterialButton[] tabs = new MaterialButton[3];
+    private final View[] pages = new View[3];
     private ImageView imgOriginal;
-    private View summaryGroup;
-    private LinearLayout todoGroup;
+    private View statusGroup, todoHeader;
+    private LinearLayout todoGroup, actionGrid;
+    private ScrollView scroll;
+
+    /** 지금 보는 쪽 (0: 요약, 1: 할 일, 2: 원문) */
+    private int page;
+    /** 요약을 보여 줄 수 있는지. 아니면 1, 2쪽 자리에 요약 중·실패 안내를 보여 준다 */
+    private boolean ready;
 
     private NoticeDao dao;
     private Notice notice;
@@ -116,6 +134,7 @@ public class ResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_result);
+        KeepWords.applyTo(findViewById(R.id.main));
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -124,7 +143,7 @@ public class ResultActivity extends AppCompatActivity {
 
         txtStatus = findViewById(R.id.txtStatus);
         btnRetry = findViewById(R.id.btnRetry);
-        summaryGroup = findViewById(R.id.summaryGroup);
+        statusGroup = findViewById(R.id.statusGroup);
         txtVerify = findViewById(R.id.txtVerify);
         txtLine1 = findViewById(R.id.txtLine1);
         txtLine2 = findViewById(R.id.txtLine2);
@@ -132,31 +151,40 @@ public class ResultActivity extends AppCompatActivity {
         btnPhoto = findViewById(R.id.btnPhoto);
         imgOriginal = findViewById(R.id.imgOriginal);
         txtWarning = findViewById(R.id.txtWarning);
-        txtTodosTitle = findViewById(R.id.txtTodosTitle);
+        todoHeader = findViewById(R.id.todoHeader);
+        txtTodoCount = findViewById(R.id.txtTodoCount);
         todoGroup = findViewById(R.id.todoGroup);
-        btnSpeak = findViewById(R.id.btnSpeak);
-        btnCalendar = findViewById(R.id.btnCalendar);
-        btnDial = findViewById(R.id.btnDial);
-        btnShare = findViewById(R.id.btnShare);
-        btnMap = findViewById(R.id.btnMap);
+        actionGrid = findViewById(R.id.actionGrid);
+        txtAlarm = findViewById(R.id.txtAlarm);
+        scroll = findViewById(R.id.scroll);
+        btnLeft = findViewById(R.id.btnLeft);
+        btnRight = findViewById(R.id.btnRight);
+        tabs[0] = findViewById(R.id.tab1);
+        tabs[1] = findViewById(R.id.tab2);
+        tabs[2] = findViewById(R.id.tab3);
+        pages[0] = findViewById(R.id.page1);
+        pages[1] = findViewById(R.id.page2);
+        pages[2] = findViewById(R.id.page3);
 
-        btnSpeak.setOnClickListener(v -> speak());
-        btnCalendar.setOnClickListener(v -> addToCalendar());
-        btnDial.setOnClickListener(v -> open(new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + notice.phone))));
-        btnShare.setOnClickListener(v -> share());
-        btnMap.setOnClickListener(v -> startActivity(new Intent(this, MapActivity.class)
-                .putExtra(MapActivity.EXTRA_PLACE, notice.place)));
-
-        btnPhoto.setOnClickListener(v -> {
-            if (imgOriginal.getVisibility() == View.VISIBLE) hidePhoto();
-            else showPhoto();
+        for (int i = 0; i < tabs.length; i++) {
+            int p = i;
+            tabs[i].setOnClickListener(v -> showPage(p));
+        }
+        // 1쪽: 듣기 / 다음: 할 일, 2쪽: 이전 / 다음: 원문 확인, 3쪽: 이전 / 다 봤어요, 목록으로
+        btnLeft.setOnClickListener(v -> {
+            if (page == 0) speak();
+            else showPage(page - 1);
         });
-
+        btnRight.setOnClickListener(v -> {
+            if (page < 2) showPage(page + 1);
+            else goHome();
+        });
+        findViewById(R.id.btnList).setOnClickListener(v -> goHome());
+        txtVerify.setOnClickListener(v -> showPage(2));
+        ((TextView) findViewById(R.id.txtNote)).setText(KeepWords.of(getString(R.string.summary_note)));
+        btnPhoto.setOnClickListener(v -> togglePhotoSize());
         btnRetry.setOnClickListener(v -> summarize());
-        findViewById(R.id.btnHome).setOnClickListener(v -> {
-            startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-            finish();
-        });
+        showPage(0);
 
         findViewById(R.id.btnDelete).setOnClickListener(v -> confirmDelete());
 
@@ -183,7 +211,8 @@ public class ResultActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.txtOriginal)).setText(maskedText);
         photoPath = n.imagePath;
         if (photoPath != null && !new File(photoPath).exists()) photoPath = null;
-        btnPhoto.setVisibility(photoPath != null ? View.VISIBLE : View.GONE);
+        findViewById(R.id.photoGroup).setVisibility(photoPath != null ? View.VISIBLE : View.GONE);
+        if (photoPath != null) loadPhoto();
 
         if (n.isSummarized()) showSummary(todos);
         else summarize();
@@ -244,52 +273,138 @@ public class ResultActivity extends AppCompatActivity {
 
     private void showStatus(int messageRes, boolean canRetry) {
         txtStatus.setText(messageRes);
-        txtStatus.setVisibility(View.VISIBLE);
         btnRetry.setVisibility(canRetry ? View.VISIBLE : View.GONE);
-        summaryGroup.setVisibility(View.GONE);
+        ready = false;
+        showPage(page);
+    }
+
+    private void goHome() {
+        startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        finish();
+    }
+
+    /** 고른 쪽만 보이고, 탭 색과 아래 버튼 두 개의 글자를 그 쪽에 맞게 바꾼다 */
+    private void showPage(int p) {
+        if (p != page && tts != null && tts.isSpeaking()) tts.stop();
+        page = p;
+        int accent = ContextCompat.getColor(this, R.color.accent);
+        for (int i = 0; i < tabs.length; i++) {
+            boolean on = i == p;
+            tabs[i].setBackgroundTintList(ColorStateList.valueOf(on ? accent : Color.TRANSPARENT));
+            tabs[i].setTextColor(ContextCompat.getColor(this, on ? R.color.on_accent : R.color.body));
+            tabs[i].setSelected(on);
+        }
+        pages[0].setVisibility(p == 0 && ready ? View.VISIBLE : View.GONE);
+        pages[1].setVisibility(p == 1 && ready ? View.VISIBLE : View.GONE);
+        pages[2].setVisibility(p == 2 ? View.VISIBLE : View.GONE);
+        statusGroup.setVisibility(p < 2 && !ready ? View.VISIBLE : View.GONE);
+
+        if (p == 0) {
+            setButton(btnLeft, R.string.action_speak, R.drawable.ic_speaker);
+            btnLeft.setVisibility(ready ? View.VISIBLE : View.GONE);
+            setButton(btnRight, R.string.next_todo, R.drawable.ic_arrow_right);
+        } else {
+            setButton(btnLeft, R.string.prev, R.drawable.ic_chevron_left);
+            btnLeft.setVisibility(View.VISIBLE);
+            if (p == 1) setButton(btnRight, R.string.next_original, R.drawable.ic_arrow_right);
+            else setButton(btnRight, R.string.done_to_list, 0);
+        }
+        scroll.scrollTo(0, 0);
+    }
+
+    private static void setButton(MaterialButton button, int textRes, int iconRes) {
+        button.setText(textRes);
+        button.setIconResource(iconRes);
     }
 
     private void showSummary(List<Todo> todos) {
         Notice n = notice;
-        txtStatus.setVisibility(View.GONE);
-        btnRetry.setVisibility(View.GONE);
-        summaryGroup.setVisibility(View.VISIBLE);
+        ready = true;
+        showPage(page);
 
         showVerifyBadge(n.checkedCount, n.mismatches);
-        txtLine1.setText(n.line1What);
-        txtLine2.setText(n.line2Todo);
-        txtLine3.setText(n.line3WhenWhere);
+        txtLine1.setText(KeepWords.of(n.line1What));
+        txtLine2.setText(KeepWords.of(n.line2Todo));
+        txtLine3.setText(KeepWords.of(n.line3WhenWhere));
         String warning = n.warning == null ? "" : n.warning;
-        txtWarning.setText(warning);
+        txtWarning.setText(KeepWords.of(warning));
         txtWarning.setVisibility(warning.trim().isEmpty() ? View.GONE : View.VISIBLE);
 
         // 체크하면 바로 저장해서, 앱을 다시 켜도 체크 상태가 남는다
         todoGroup.removeAllViews();
-        float textPx = getResources().getDimension(R.dimen.text_body);
-        int minHeight = getResources().getDimensionPixelSize(R.dimen.touch_min);
         for (Todo todo : todos) {
-            CheckBox box = new CheckBox(this);
-            box.setText(todo.content);
-            box.setTextSize(TypedValue.COMPLEX_UNIT_PX, textPx);
-            box.setMinHeight(minHeight);
+            CheckBox box = (CheckBox) getLayoutInflater().inflate(R.layout.item_todo, todoGroup, false);
+            box.setText(KeepWords.of(todo.content));
             box.setChecked(todo.done);
             box.setOnCheckedChangeListener((b, checked) -> {
                 todo.done = checked;
+                updateTodoCount(todos);
                 new Thread(() -> dao.updateTodo(todo)).start();
             });
             todoGroup.addView(box);
         }
-        txtTodosTitle.setVisibility(todos.isEmpty() ? View.GONE : View.VISIBLE);
+        todoHeader.setVisibility(todos.isEmpty() ? View.GONE : View.VISIBLE);
+        updateTodoCount(todos);
 
-        // 해당하는 값이 있을 때만 버튼을 보여 준다
+        // 바로 하기: 해당하는 값이 있는 칸만 두 개씩 줄지어 넣는다
         boolean hasDeadline = n.deadline != null && !n.deadline.isEmpty();
         boolean hasPhone = n.phone != null && !n.phone.isEmpty();
         boolean hasPlace = n.place != null && !n.place.isEmpty() && BuildConfig.HAS_MAPS_KEY;
-        btnCalendar.setVisibility(hasDeadline ? View.VISIBLE : View.GONE);
-        btnDial.setVisibility(hasPhone ? View.VISIBLE : View.GONE);
-        if (hasPhone) btnDial.setText(getString(R.string.action_dial, n.phone));
-        btnMap.setVisibility(hasPlace ? View.VISIBLE : View.GONE);
-        if (hasPlace) btnMap.setText(getString(R.string.action_map, n.place));
+        actionGrid.removeAllViews();
+        if (hasDeadline) addTile(R.drawable.ic_calendar, getString(R.string.action_calendar), v -> addToCalendar());
+        if (hasPhone) addTile(R.drawable.ic_phone, getString(R.string.action_dial, n.phone),
+                v -> open(new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + n.phone))));
+        addTile(R.drawable.ic_family, getString(R.string.action_share), v -> share());
+        if (hasPlace) addTile(R.drawable.ic_pin, getString(R.string.action_map, n.place),
+                v -> startActivity(new Intent(this, MapActivity.class)
+                        .putExtra(MapActivity.EXTRA_PLACE, n.place)
+                        .putExtra(MapActivity.EXTRA_PHONE, hasPhone ? n.phone : "")));
+
+        // 마감일 알림 안내. 알림을 꺼 두었거나 이미 지난 날이면 숨긴다
+        List<LocalDate> days = DeadlineAlarm.upcomingDays(n);
+        boolean alarmOn = !days.isEmpty() && NotificationManagerCompat.from(this).areNotificationsEnabled();
+        txtAlarm.setVisibility(alarmOn ? View.VISIBLE : View.GONE);
+        if (days.size() == 1) txtAlarm.setText(getString(R.string.alarm_info_one, monthDay(days.get(0))));
+        else if (days.size() >= 2) txtAlarm.setText(getString(R.string.alarm_info_two, monthDay(days.get(0)), monthDay(days.get(1))));
+    }
+
+    private String monthDay(LocalDate d) {
+        return getString(R.string.date_md, d.getMonthValue(), d.getDayOfMonth());
+    }
+
+    private void updateTodoCount(List<Todo> todos) {
+        int done = 0;
+        for (Todo t : todos) if (t.done) done++;
+        txtTodoCount.setText(getString(R.string.todo_done_count, todos.size(), done));
+    }
+
+    /** 바로 하기 칸 하나를 넣는다. 둘째 줄(전화번호, 장소)은 작고 흐리게 */
+    private void addTile(int iconRes, String text, View.OnClickListener onClick) {
+        LinearLayout row = actionGrid.getChildCount() == 0 ? null
+                : (LinearLayout) actionGrid.getChildAt(actionGrid.getChildCount() - 1);
+        if (row == null || row.getChildCount() == 2) {
+            row = new LinearLayout(this);
+            row.setBaselineAligned(false); // 둘째 줄이 있는 칸과 없는 칸의 높이와 위치를 맞춘다
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.topMargin = actionGrid.getChildCount() == 0 ? 0 : getResources().getDimensionPixelSize(R.dimen.tile_gap);
+            actionGrid.addView(row, lp);
+        }
+        MaterialButton tile = (MaterialButton) getLayoutInflater().inflate(R.layout.item_tile, row, false);
+        int br = text.indexOf('\n');
+        if (br < 0) {
+            tile.setText(text);
+        } else {
+            SpannableString s = new SpannableString(text);
+            s.setSpan(new RelativeSizeSpan(0.8f), br, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            s.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.sub)), br, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            tile.setText(s);
+        }
+        tile.setIconResource(iconRes);
+        tile.setOnClickListener(onClick);
+        if (row.getChildCount() == 1) {
+            ((LinearLayout.LayoutParams) tile.getLayoutParams()).setMarginStart(getResources().getDimensionPixelSize(R.dimen.tile_gap));
+        }
+        row.addView(tile);
     }
 
     /** 세 줄과 주의할 점을 천천히 읽어 준다. 읽는 중에 누르면 멈춘다 */
@@ -309,12 +424,12 @@ public class ResultActivity extends AppCompatActivity {
 
                 @Override
                 public void onDone(String id) {
-                    uiHandler.post(() -> btnSpeak.setText(R.string.action_speak));
+                    uiHandler.post(ResultActivity.this::resetSpeakButton);
                 }
 
                 @Override
                 public void onError(String id) {
-                    uiHandler.post(() -> btnSpeak.setText(R.string.action_speak));
+                    uiHandler.post(ResultActivity.this::resetSpeakButton);
                 }
             });
             return;
@@ -323,7 +438,7 @@ public class ResultActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.tts_unavailable, Toast.LENGTH_LONG).show();
         } else if (tts.isSpeaking()) {
             tts.stop();
-            btnSpeak.setText(R.string.action_speak);
+            resetSpeakButton();
         } else {
             speakSummary();
         }
@@ -333,7 +448,12 @@ public class ResultActivity extends AppCompatActivity {
         String text = notice.line1What + "\n" + notice.line2Todo + "\n" + notice.line3WhenWhere;
         if (notice.warning != null && !notice.warning.trim().isEmpty()) text += "\n" + notice.warning;
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "summary");
-        btnSpeak.setText(R.string.action_stop_speak);
+        if (page == 0) btnLeft.setText(R.string.action_stop_speak);
+    }
+
+    /** 다 읽었거나 멈췄을 때. 다른 쪽으로 넘어갔으면 그 쪽 버튼 글자를 건드리지 않는다 */
+    private void resetSpeakButton() {
+        if (page == 0) btnLeft.setText(R.string.action_speak);
     }
 
     /** 달력 앱의 새 일정 화면을 채워 연다. 저장은 사용자가 달력 앱에서 누른다 */
@@ -384,14 +504,16 @@ public class ResultActivity extends AppCompatActivity {
         if (tts != null) tts.shutdown();
     }
 
-    /** 통과면 초록 체크, 다르면 주황 경고와 함께 원문 사진을 펼친다. 대조할 값이 없으면 숨긴다 */
+    /** 통과면 초록 체크, 다르면 주황 경고(누르면 3쪽 원문으로). 대조할 값이 없으면 숨긴다 */
     private void showVerifyBadge(int checked, String mismatches) {
         if (checked == 0) {
             txtVerify.setVisibility(View.GONE);
             return;
         }
         txtVerify.setVisibility(View.VISIBLE);
-        if (mismatches == null || mismatches.isEmpty()) {
+        boolean passed = mismatches == null || mismatches.isEmpty();
+        txtVerify.setClickable(!passed);
+        if (passed) {
             txtVerify.setText(R.string.verified);
             txtVerify.setBackgroundResource(R.drawable.verified_box);
             txtVerify.setTextColor(ContextCompat.getColor(this, R.color.verified_text));
@@ -401,7 +523,6 @@ public class ResultActivity extends AppCompatActivity {
             txtVerify.setBackgroundResource(R.drawable.warning_box);
             txtVerify.setTextColor(ContextCompat.getColor(this, R.color.warning_text));
             txtVerify.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_warning, 0, 0, 0);
-            if (photoPath != null) showPhoto();
         }
     }
 
@@ -424,10 +545,18 @@ public class ResultActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void showPhoto() {
-        btnPhoto.setText(R.string.hide_photo);
-        imgOriginal.setVisibility(View.VISIBLE);
-        if (imgOriginal.getDrawable() != null) return;
+    /** 사진은 처음에 일부만 잘라 보여 주고, 크게 보기를 누르면 전체를 펼친다 */
+    private void togglePhotoSize() {
+        boolean small = imgOriginal.getScaleType() == ImageView.ScaleType.CENTER_CROP;
+        ViewGroup.LayoutParams lp = imgOriginal.getLayoutParams();
+        lp.height = small ? ViewGroup.LayoutParams.WRAP_CONTENT : getResources().getDimensionPixelSize(R.dimen.photo_small);
+        imgOriginal.setLayoutParams(lp);
+        imgOriginal.setAdjustViewBounds(small);
+        imgOriginal.setScaleType(small ? ImageView.ScaleType.FIT_CENTER : ImageView.ScaleType.CENTER_CROP);
+        btnPhoto.setText(small ? R.string.hide_photo : R.string.show_photo);
+    }
+
+    private void loadPhoto() {
         int width = getResources().getDisplayMetrics().widthPixels;
         // 큰 사진을 줄여 읽는 일은 백그라운드 스레드에서 하고, 화면 반영만 Handler로 메인 스레드에 넘긴다
         new Thread(() -> {
@@ -436,11 +565,6 @@ public class ResultActivity extends AppCompatActivity {
                 if (!isDestroyed() && bitmap != null) imgOriginal.setImageBitmap(bitmap);
             });
         }).start();
-    }
-
-    private void hidePhoto() {
-        btnPhoto.setText(R.string.show_photo);
-        imgOriginal.setVisibility(View.GONE);
     }
 
     /** 화면 너비에 맞게 줄여 읽고, 카메라가 기록한 방향대로 돌린다 */

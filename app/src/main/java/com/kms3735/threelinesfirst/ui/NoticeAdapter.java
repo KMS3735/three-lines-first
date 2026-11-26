@@ -14,30 +14,35 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.kms3735.threelinesfirst.R;
 import com.kms3735.threelinesfirst.data.Notice;
 import com.kms3735.threelinesfirst.data.NoticeItem;
+import com.kms3735.threelinesfirst.util.KeepWords;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-/** ① 안내문 목록의 RecyclerView 어댑터. 한 칸에 무슨 안내문인지, 마감까지 남은 날, 할 일 진행을 보여 준다 */
+/** ① 안내문 목록의 RecyclerView 어댑터. 한 칸에 마감 날짜 칸, 무슨 안내문인지, 남은 날, 할 일 진행을 보여 준다 */
 public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeHolder> {
+
+    /** 이 날 수 이하로 남으면 마감 임박(주황) */
+    static final int URGENT_DAYS = 3;
 
     public interface OnNoticeClick {
         void onClick(Notice notice);
     }
 
     static class NoticeHolder extends RecyclerView.ViewHolder {
-        final TextView title, deadline, info;
-        /** 테마 기본 글자색. 주황으로 바꿨던 칸을 다시 쓸 때 되돌린다 */
-        final ColorStateList normal;
+        final View dateTile;
+        final TextView month, day, title, deadline, info;
 
         NoticeHolder(@NonNull View itemView) {
             super(itemView);
+            dateTile = itemView.findViewById(R.id.dateTile);
+            month = itemView.findViewById(R.id.txtMonth);
+            day = itemView.findViewById(R.id.txtDay);
             title = itemView.findViewById(R.id.txtTitle);
             deadline = itemView.findViewById(R.id.txtDeadline);
             info = itemView.findViewById(R.id.txtInfo);
-            normal = deadline.getTextColors();
         }
     }
 
@@ -55,6 +60,30 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeHold
         notifyDataSetChanged();
     }
 
+    /** 마감까지 남은 날 (지났으면 음수). 아직 요약 전이거나 마감일이 없으면 null */
+    static Long daysLeft(Notice n) {
+        if (!n.isSummarized() || n.deadline == null || n.deadline.isEmpty()) return null;
+        return ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(n.deadline));
+    }
+
+    /** 남은 날 문구: "2일 남았어요", "오늘까지예요", "마감이 지났어요" */
+    static String leftText(Context c, long left) {
+        if (left > 0) return c.getString(R.string.deadline_left, left);
+        if (left == 0) return c.getString(R.string.deadline_today);
+        return c.getString(R.string.deadline_passed);
+    }
+
+    /** 남은 날에 맞는 글자색 리소스: 사흘 안이면 주황, 넉넉하면 파랑, 지났으면 회색 */
+    private static int toneText(long left) {
+        if (left < 0) return R.color.tone_gray_text;
+        return left <= URGENT_DAYS ? R.color.warning_text : R.color.tone_blue_text;
+    }
+
+    private static int toneBg(long left) {
+        if (left < 0) return R.color.tone_gray_bg;
+        return left <= URGENT_DAYS ? R.color.warning_bg : R.color.tone_blue_bg;
+    }
+
     @NonNull
     @Override
     public NoticeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -67,43 +96,49 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeHold
         NoticeItem item = items.get(position);
         Notice n = item.notice;
         holder.itemView.setOnClickListener(v -> onClick.onClick(n));
-
-        ColorStateList normal = holder.normal;
-        ColorStateList urgent = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.warning_text));
+        int sub = ContextCompat.getColor(context, R.color.sub);
 
         if (!n.isSummarized()) {
+            holder.dateTile.setVisibility(View.GONE);
             holder.title.setText(R.string.list_not_summarized);
             holder.deadline.setText(R.string.list_tap_to_retry);
-            holder.deadline.setTextColor(normal);
+            holder.deadline.setTextColor(sub);
             holder.info.setVisibility(View.GONE);
             return;
         }
 
-        holder.title.setText(n.line1What);
+        holder.title.setText(KeepWords.of(n.line1What));
 
-        // 마감까지 남은 날. 사흘 안이거나 지났으면 주황색으로 눈에 띄게
-        if (n.deadline == null || n.deadline.isEmpty()) {
+        Long left = daysLeft(n);
+        if (left == null) {
+            holder.dateTile.setVisibility(View.GONE);
             holder.deadline.setText(R.string.deadline_none);
-            holder.deadline.setTextColor(normal);
+            holder.deadline.setTextColor(sub);
         } else {
             LocalDate d = LocalDate.parse(n.deadline);
-            long left = ChronoUnit.DAYS.between(LocalDate.now(), d);
-            String date = d.getMonthValue() + "월 " + d.getDayOfMonth() + "일";
-            if (left > 0) holder.deadline.setText(context.getString(R.string.deadline_left, date, left));
-            else if (left == 0) holder.deadline.setText(context.getString(R.string.deadline_today, date));
-            else holder.deadline.setText(context.getString(R.string.deadline_passed, date));
-            holder.deadline.setTextColor(left <= 3 ? urgent : normal);
+            int text = ContextCompat.getColor(context, toneText(left));
+            holder.dateTile.setVisibility(View.VISIBLE);
+            holder.dateTile.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, toneBg(left))));
+            holder.month.setText(context.getString(R.string.month, d.getMonthValue()));
+            holder.month.setTextColor(text);
+            holder.day.setText(String.valueOf(d.getDayOfMonth()));
+            holder.day.setTextColor(text);
+            holder.deadline.setText(leftText(context, left));
+            holder.deadline.setTextColor(text);
         }
 
-        // 할 일 진행, 원문 대조 경고
-        StringBuilder info = new StringBuilder();
-        if (item.todoTotal > 0) info.append(context.getString(R.string.todo_progress, item.todoTotal, item.todoDone));
+        // 원문과 다른 값이 있으면 그 경고를, 아니면 할 일 진행을 보여 준다
         if (n.mismatches != null && !n.mismatches.isEmpty()) {
-            if (info.length() > 0) info.append('\n');
-            info.append(context.getString(R.string.list_mismatch));
+            holder.info.setText(R.string.list_mismatch);
+            holder.info.setTextColor(ContextCompat.getColor(context, R.color.warning_text));
+            holder.info.setVisibility(View.VISIBLE);
+        } else if (item.todoTotal > 0) {
+            holder.info.setText(context.getString(R.string.todo_progress, item.todoTotal, item.todoDone));
+            holder.info.setTextColor(sub);
+            holder.info.setVisibility(View.VISIBLE);
+        } else {
+            holder.info.setVisibility(View.GONE);
         }
-        holder.info.setText(info);
-        holder.info.setVisibility(info.length() > 0 ? View.VISIBLE : View.GONE);
     }
 
     @Override

@@ -168,11 +168,11 @@ String key = BuildConfig.GEMINI_API_KEY;
 | 화면 | Activity · 레이아웃 | 주요 위젯 |
 | --- | --- | --- |
 | **개인정보 동의** | `ConsentActivity`<br>`activity_consent.xml` | 전송 범위 그림, 동의 버튼 |
-| **① 안내문 목록** | `MainActivity`<br>`activity_main.xml` · `item_notice.xml` | RecyclerView + CardView<br>촬영 버튼, 사진 불러오기 버튼 |
+| **① 안내문 목록** | `MainActivity`<br>`activity_main.xml` · `item_notice.xml` | 인사말, 가장 급한 안내문 카드, 마감 임박·진행 중·마감 지남 개수<br>RecyclerView + CardView (마감이 가까운 순, 날짜 칸)<br>사진 불러오기 · 안내문 찍기 버튼 |
 | **② 촬영 안내** | `CaptureActivity`<br>`activity_capture.xml` | CameraX `PreviewView` + 가이드 틀<br>인식 결과 확인<br>사진·공유로 들어오면 카메라를 건너뜀 |
-| **③ 세 줄 요약** | `ResultActivity`<br>`activity_result.xml` | 세 줄 카드, 경고, 체크박스<br>대조 배지, 원문 사진 |
-| **④ 행동 연결** | `ResultActivity` 아래쪽<br>같은 레이아웃 | 읽어주기 · 달력 · 전화 · 공유 · 장소 보기 버튼 |
-| **장소 지도** | `MapActivity`<br>`activity_map.xml` | `SupportMapFragment`<br>기관 마커, 내 위치 |
+| **③ 세 줄 요약** | `ResultActivity`<br>`activity_result.xml` | 세 쪽으로 나눠 위쪽 탭과 아래 버튼으로 넘김<br>1 요약: 대조 배지, 번호 붙은 세 줄 카드, 경고, 듣기<br>3 원문: 원문 사진(크게 보기), 가린 글, 지우기 |
+| **④ 행동 연결** | `ResultActivity` 2쪽<br>`item_todo.xml` · `item_tile.xml` | 할 일 체크박스<br>바로 하기 칸: 달력 · 문의 전화 · 가족에게 보내기 · 지도<br>마감일 알림 안내 |
+| **장소 지도** | `MapActivity`<br>`activity_map.xml` | `SupportMapFragment`<br>기관 마커, 내 위치<br>아래 판: 주소, 가기 전에 전화로 묻기 |
 | **설정** | `SettingsActivity`<br>`activity_settings.xml` | 쉬운 말, 큰 글씨, 사진 보관, 알림 스위치 |
 
 **화면 이동 흐름**
@@ -192,6 +192,8 @@ Activity 사이에는 Room DB의 `notice_id`만 `Intent` extra로 넘기고, 화
 - `res/values/dimens.xml`에 본문 20sp, 큰 글씨 28sp를 정의하고, 큰 글씨 모드가 켜져 있으면 화면을 열 때 TextView 크기를 28sp로 바꿔 적용
 - 모든 버튼 `android:minHeight="48dp"`, 아이콘과 글자를 함께 표시
 - 아이콘 버튼과 이미지에 `android:contentDescription` 지정
+- 한국어를 낱말 단위로 줄바꿈: Android 13 이상은 테마의 `lineBreakWordStyle=phrase`, 그 아래는 `KeepWords`가 낱말 안 글자 사이에 보이지 않는 WORD JOINER(U+2060)를 넣어 "안내문이 / 에요."처럼 끊기지 않게 함
+- 색은 `values/colors.xml`과 `values-night/colors.xml`에 같은 이름으로 두어 어두운 모드에서도 대비를 유지
 - Android Studio의 **Layout Inspector**와 **Accessibility Scanner** 앱으로 터치 영역과 대비를 점검
 
 ## 6. 패키지 구조
@@ -203,7 +205,7 @@ app/src/main/java/com/kms3735/threelinesfirst/
 │   ├── NoticeAdapter.java       # 목록 RecyclerView 어댑터
 │   ├── ConsentActivity.java     # 첫 실행 개인정보 동의
 │   ├── CaptureActivity.java     # 촬영 안내, 촬영, 사진·공유로 받기, 인식 결과 확인
-│   ├── ResultActivity.java      # 세 줄 요약, 할 일, 원문, 행동 버튼(읽어주기·달력·전화·공유)
+│   ├── ResultActivity.java      # 세 줄 요약 세 쪽(요약 / 할 일·바로 하기 / 원문), 읽어주기·달력·전화·공유
 │   ├── MapActivity.java         # 장소 지도: 내 위치 + 기관 마커
 │   └── SettingsActivity.java    # 내 모드, 사진 보관, 알림 설정
 ├── ocr/                         # OcrHelper (ML Kit 글자 인식), ReadingOrder (읽는 순서 정렬)
@@ -217,7 +219,9 @@ app/src/main/java/com/kms3735/threelinesfirst/
 │   ├── Notice.java              # @Entity 안내문 한 건 + 세 줄 요약
 │   ├── Todo.java                # @Entity 할 일 체크박스
 │   └── NoticeDao.java           # @Dao 조회·저장·수정
-└── util/DeadlineAlarm.java      # 알림 예약 + BroadcastReceiver (알림, BOOT_COMPLETED)
+└── util/
+    ├── DeadlineAlarm.java       # 알림 예약 + BroadcastReceiver (알림, BOOT_COMPLETED)
+    └── KeepWords.java           # 한국어 낱말 단위 줄바꿈 (Android 12 이하)
 ```
 
 달력·전화·공유 인텐트와 `TextToSpeech`는 각각 몇 줄이고 요약 화면에서만 쓰므로 `ResultActivity` 안에 둡니다.
@@ -302,6 +306,7 @@ Room은 SQLite 위에서 동작하는 라이브러리로, `SQLiteOpenHelper` 대
 @Dao
 public interface NoticeDao {
     // 목록: 최근 것부터, 할 일 진행 개수(todoTotal, todoDone)와 함께 NoticeItem으로 받는다
+    // (화면에서는 마감이 가까운 순으로 다시 정렬한다)
     @Query("SELECT n.*, (SELECT COUNT(*) ...) AS todoTotal, (SELECT COUNT(*) ... done = 1) AS todoDone "
             + "FROM notice n ORDER BY n.createdAt DESC")
     List<NoticeItem> getList();

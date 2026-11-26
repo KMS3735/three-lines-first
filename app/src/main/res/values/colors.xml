@@ -1,8 +1,25 @@
 <resources>
-    <!-- 경고 상자: 배경과 글자의 명도 대비 4.5:1 이상 -->
-    <color name="warning_bg">#FFF3E0</color>
-    <color name="warning_text">#8A3B00</color>
+    <!-- 밝은 하늘색 바탕에 흰 카드. 글자와 배경의 명도 대비는 4.5:1 이상 -->
+    <color name="accent">#1E5AA8</color>
+    <color name="accent_text">#1E5AA8</color>
+    <color name="on_accent">#FFFFFF</color>
+    <color name="hero_end">#3B8FC4</color>
+    <color name="bg_top">#E6EFFA</color>
+    <color name="bg">#F7F9FC</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="ink">#1F2933</color>
+    <color name="body">#4A5563</color>
+    <color name="sub">#5B6470</color>
+    <color name="hint">#A3AAB4</color>
+    <!-- 날짜 칸: 넉넉함(파랑), 마감 지남·없음(회색) -->
+    <color name="tone_blue_bg">#EAF0F8</color>
+    <color name="tone_blue_text">#234E86</color>
+    <color name="tone_gray_bg">#EFEFEC</color>
+    <color name="tone_gray_text">#5B6470</color>
+    <!-- 경고 상자, 마감 임박 -->
+    <color name="warning_bg">#FBEDE3</color>
+    <color name="warning_text">#9A4310</color>
     <!-- 원문 대조 통과 배지 -->
-    <color name="verified_bg">#E8F5E9</color>
-    <color name="verified_text">#1B5E20</color>
+    <color name="verified_bg">#E7F2EA</color>
+    <color name="verified_text">#2F6B3E</color>
 </resources>

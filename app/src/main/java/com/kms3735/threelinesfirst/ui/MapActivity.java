@@ -2,15 +2,20 @@ package com.kms3735.threelinesfirst.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -28,6 +33,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.kms3735.threelinesfirst.R;
+import com.kms3735.threelinesfirst.util.KeepWords;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,6 +47,8 @@ import java.util.Locale;
 public class MapActivity extends AppCompatActivity {
 
     public static final String EXTRA_PLACE = "place";
+    /** 안내문의 문의 전화. 있으면 "가기 전에 전화로 묻기" 버튼을 보여 준다 */
+    public static final String EXTRA_PHONE = "phone";
     private static final String TAG = "MapActivity";
     private static final float ZOOM = 16f;
 
@@ -58,6 +66,7 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_map);
+        KeepWords.applyTo(findViewById(R.id.main));
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -69,11 +78,25 @@ public class MapActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.txtPlace)).setText(place);
         txtStatus = findViewById(R.id.txtStatus);
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        String phone = getIntent().getStringExtra(EXTRA_PHONE);
+        if (phone != null && !phone.isEmpty()) {
+            View call = findViewById(R.id.btnCall);
+            call.setVisibility(View.VISIBLE);
+            call.setOnClickListener(v -> {
+                try {
+                    startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone)));
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(this, R.string.no_app, Toast.LENGTH_LONG).show();
+                }
+            });
+        }
 
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         fragment.getMapAsync(googleMap -> {
             map = googleMap;
             map.getUiSettings().setZoomControlsEnabled(true);
+            // 아래 둥근 판이 지도 아래쪽을 살짝 덮으므로 확대 버튼이 가리지 않게 띄운다
+            map.setPadding(0, 0, 0, Math.round(24 * getResources().getDisplayMetrics().density));
             if (hasLocationPermission()) {
                 showPlace(true);
             } else {
@@ -148,6 +171,6 @@ public class MapActivity extends AppCompatActivity {
         String line = address.getMaxAddressLineIndex() >= 0 ? address.getAddressLine(0) : "";
         map.addMarker(new MarkerOptions().position(at).title(place).snippet(line)).showInfoWindow();
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(at, ZOOM));
-        txtStatus.setText(line.isEmpty() ? getString(R.string.map_found) : line);
+        txtStatus.setText(line.isEmpty() ? getString(R.string.map_found) : KeepWords.of(line));
     }
 }

@@ -31,6 +31,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.kms3735.threelinesfirst.R;
+import com.kms3735.threelinesfirst.util.KeepWords;
 import com.kms3735.threelinesfirst.data.AppDatabase;
 import com.kms3735.threelinesfirst.data.Notice;
 import com.kms3735.threelinesfirst.ocr.OcrHelper;
@@ -93,6 +94,7 @@ public class CaptureActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_capture);
+        KeepWords.applyTo(findViewById(R.id.main));
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

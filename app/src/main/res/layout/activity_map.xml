@@ -1,29 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 장소 지도: 위에 장소 이름과 주소, 가운데 지도, 아래 돌아가기 -->
+<!-- 장소 지도: 위에 지도, 아래 둥근 판에 장소 이름·주소, 전화로 묻기, 돌아가기 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg"
     android:orientation="vertical"
     tools:context=".ui.MapActivity">
-
-    <TextView
-        android:id="@+id/txtPlace"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="20dp"
-        android:textSize="@dimen/text_summary"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/txtStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="8dp"
-        android:textSize="@dimen/text_body" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map"
@@ -32,14 +17,47 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <Button
-        android:id="@+id/btnBack"
-        style="@style/Widget.Material3.Button.OutlinedButton"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:minHeight="72dp"
-        android:text="@string/go_back"
-        android:textSize="@dimen/text_body"
-        android:textStyle="bold" />
+        android:layout_marginTop="-24dp"
+        android:background="@drawable/bg_sheet"
+        android:elevation="8dp"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="22dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/txtPlace"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:accessibilityHeading="true"
+            android:textColor="@color/ink"
+            android:textSize="@dimen/text_title"
+            android:textStyle="bold"
+            tools:targetApi="28" />
+
+        <TextView
+            android:id="@+id/txtStatus"
+            style="@style/Body"
+            android:layout_marginTop="4dp" />
+
+        <Button
+            android:id="@+id/btnCall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="@string/map_call"
+            android:visibility="gone"
+            app:icon="@drawable/ic_phone" />
+
+        <Button
+            android:id="@+id/btnBack"
+            style="@style/Button.Light"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/go_back" />
+    </LinearLayout>
 </LinearLayout>

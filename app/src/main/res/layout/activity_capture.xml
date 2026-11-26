@@ -40,7 +40,7 @@
             android:id="@+id/panel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="?android:colorBackground"
+            android:background="@drawable/bg_sheet"
             android:orientation="vertical"
             android:padding="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -52,6 +52,7 @@
                 android:layout_height="wrap_content"
                 android:lineSpacingExtra="4dp"
                 android:text="@string/capture_tips"
+                android:textColor="@color/ink"
                 android:textSize="@dimen/text_body" />
 
             <Button
@@ -59,10 +60,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:minHeight="72dp"
                 android:text="@string/shoot"
-                android:textSize="@dimen/text_body"
-                android:textStyle="bold" />
+                app:icon="@drawable/ic_camera" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -71,15 +70,17 @@
         android:id="@+id/resultGroup"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?android:colorBackground"
+        android:background="@drawable/bg_screen"
         android:orientation="vertical"
-        android:padding="20dp"
+        android:padding="16dp"
         android:visibility="gone">
 
         <TextView
             android:id="@+id/txtResultTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingHorizontal="4dp"
+            android:textColor="@color/ink"
             android:textSize="@dimen/text_body"
             android:textStyle="bold" />
 
@@ -93,6 +94,12 @@
                 android:id="@+id/txtResult"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:background="@drawable/bg_card"
+                android:elevation="1dp"
+                android:lineSpacingExtra="4dp"
+                android:padding="16dp"
+                android:textColor="@color/body"
                 android:textIsSelectable="true"
                 android:textSize="@dimen/text_body" />
         </ScrollView>
@@ -102,21 +109,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:minHeight="72dp"
-            android:text="@string/summarize"
-            android:textSize="@dimen/text_body"
-            android:textStyle="bold" />
+            android:text="@string/summarize" />
 
         <Button
             android:id="@+id/btnRetake"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Button.Light"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:minHeight="72dp"
+            android:layout_marginTop="10dp"
             android:text="@string/retake"
-            android:textSize="@dimen/text_body"
-            android:textStyle="bold" />
+            app:icon="@drawable/ic_camera" />
     </LinearLayout>
 
 </FrameLayout>

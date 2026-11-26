@@ -1,14 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ③ 세 줄 요약: 긴 화면을 1 요약 / 2 할 일 / 3 원문 세 쪽으로 나눠 탭과 아래 버튼으로 넘긴다 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_screen"
     android:orientation="vertical"
     tools:context=".ui.ResultActivity">
 
+    <Button
+        android:id="@+id/btnList"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:minHeight="@dimen/touch_min"
+        android:paddingStart="4dp"
+        android:text="@string/back_list"
+        android:textColor="@color/accent_text"
+        android:textSize="@dimen/text_body"
+        android:textStyle="bold"
+        app:icon="@drawable/ic_chevron_left"
+        app:iconPadding="2dp"
+        app:iconSize="26dp"
+        app:iconTint="@color/accent_text" />
+
+    <!-- 쪽 이동 탭 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_pill"
+        android:elevation="1dp"
+        android:orientation="horizontal"
+        android:padding="4dp">
+
+        <Button
+            android:id="@+id/tab1"
+            style="@style/Tab"
+            android:text="@string/tab_summary" />
+
+        <Button
+            android:id="@+id/tab2"
+            style="@style/Tab"
+            android:text="@string/tab_todo" />
+
+        <Button
+            android:id="@+id/tab3"
+            style="@style/Tab"
+            android:text="@string/tab_original" />
+    </LinearLayout>
+
     <ScrollView
+        android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
@@ -17,160 +65,187 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
 
-            <!-- 요약 중 · 실패 안내 -->
-            <TextView
-                android:id="@+id/txtStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:lineSpacingExtra="4dp"
-                android:text="@string/summarizing"
-                android:textSize="@dimen/text_body"
-                android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/btnRetry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:minHeight="72dp"
-                android:text="@string/retry"
-                android:textSize="@dimen/text_body"
-                android:textStyle="bold"
-                android:visibility="gone" />
-
+            <!-- 요약 중 · 실패 안내 (1, 2쪽 자리에 보인다) -->
             <LinearLayout
-                android:id="@+id/summaryGroup"
+                android:id="@+id/statusGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/txtStatus"
+                    style="@style/Body"
+                    android:text="@string/summarizing"
+                    android:textColor="@color/ink"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnRetry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/retry"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- 1쪽: 원문 대조 배지, 세 줄, 주의할 점 -->
+            <LinearLayout
+                android:id="@+id/page1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <!-- 원문 대조 배지: 통과(초록 체크) 또는 불일치(주황 경고) -->
+                <!-- 통과(초록 체크) 또는 불일치(주황 경고, 누르면 3쪽 원문으로) -->
                 <TextView
                     android:id="@+id/txtVerify"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:drawablePadding="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:drawablePadding="10dp"
                     android:gravity="center_vertical"
-                    android:lineBreakWordStyle="phrase"
                     android:lineSpacingExtra="4dp"
-                    android:padding="16dp"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="12dp"
                     android:textSize="@dimen/text_body"
                     android:textStyle="bold"
-                    android:visibility="gone"
-                    tools:targetApi="33" />
+                    android:visibility="gone" />
 
-                <!-- 세 줄 카드 -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="16dp">
+                    android:layout_marginHorizontal="2dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:divider="?android:listDivider"
                         android:orientation="vertical"
-                        android:paddingHorizontal="20dp"
-                        android:paddingBottom="20dp">
+                        android:paddingHorizontal="18dp"
+                        android:showDividers="middle">
 
-                        <TextView
-                            style="@style/SummaryLabel"
-                            android:text="@string/label_what" />
+                        <LinearLayout style="@style/SummaryRow">
 
-                        <TextView
-                            android:id="@+id/txtLine1"
-                            style="@style/SummaryLine" />
+                            <TextView
+                                style="@style/SummaryNumber"
+                                android:text="1" />
 
-                        <TextView
-                            style="@style/SummaryLabel"
-                            android:text="@string/label_todo" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/txtLine2"
-                            style="@style/SummaryLine" />
+                                <TextView
+                                    style="@style/SummaryLabel"
+                                    android:text="@string/label_what" />
 
-                        <TextView
-                            style="@style/SummaryLabel"
-                            android:text="@string/label_when_where" />
+                                <TextView
+                                    android:id="@+id/txtLine1"
+                                    style="@style/SummaryLine" />
+                            </LinearLayout>
+                        </LinearLayout>
 
-                        <TextView
-                            android:id="@+id/txtLine3"
-                            style="@style/SummaryLine" />
+                        <LinearLayout style="@style/SummaryRow">
+
+                            <TextView
+                                style="@style/SummaryNumber"
+                                android:text="2" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    style="@style/SummaryLabel"
+                                    android:text="@string/label_todo" />
+
+                                <TextView
+                                    android:id="@+id/txtLine2"
+                                    style="@style/SummaryLine" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout style="@style/SummaryRow">
+
+                            <TextView
+                                style="@style/SummaryNumber"
+                                android:text="3" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    style="@style/SummaryLabel"
+                                    android:text="@string/label_when_where" />
+
+                                <TextView
+                                    android:id="@+id/txtLine3"
+                                    style="@style/SummaryLine" />
+                            </LinearLayout>
+                        </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
-
-                <!-- 원문 사진을 요약 바로 아래에 펼쳐 비교한다 -->
-                <Button
-                    android:id="@+id/btnPhoto"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:minHeight="@dimen/touch_min"
-                    android:text="@string/show_photo"
-                    android:textSize="@dimen/text_body"
-                    android:visibility="gone" />
-
-                <ImageView
-                    android:id="@+id/imgOriginal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:adjustViewBounds="true"
-                    android:contentDescription="@string/photo_desc"
-                    android:visibility="gone" />
 
                 <!-- 경고 한 줄: 아이콘과 글자를 함께 -->
                 <TextView
                     android:id="@+id/txtWarning"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="12dp"
                     android:background="@drawable/warning_box"
-                    android:drawablePadding="12dp"
+                    android:drawablePadding="10dp"
                     android:gravity="center_vertical"
-                    android:lineBreakWordStyle="phrase"
                     android:lineSpacingExtra="4dp"
-                    tools:targetApi="33"
-                    android:padding="16dp"
+                    android:padding="14dp"
                     android:textColor="@color/warning_text"
                     android:textSize="@dimen/text_body"
                     android:textStyle="bold"
                     app:drawableStartCompat="@drawable/ic_warning" />
+            </LinearLayout>
 
-                <!-- 행동 연결: 해당하는 값이 있을 때만 보인다 -->
-                <Button
-                    android:id="@+id/btnSpeak"
-                    style="@style/ActionButton"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/action_speak" />
+            <!-- 2쪽: 할 일 체크, 바로 하기 칸, 알림 안내 -->
+            <LinearLayout
+                android:id="@+id/page2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
 
-                <Button
-                    android:id="@+id/btnCalendar"
-                    style="@style/ActionButton"
-                    android:text="@string/action_calendar" />
+                <LinearLayout
+                    android:id="@+id/todoHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="4dp">
 
-                <Button
-                    android:id="@+id/btnDial"
-                    style="@style/ActionButton" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:accessibilityHeading="true"
+                        android:text="@string/todos_title"
+                        android:textColor="@color/ink"
+                        android:textSize="@dimen/text_heading"
+                        android:textStyle="bold"
+                        tools:targetApi="28" />
 
-                <Button
-                    android:id="@+id/btnShare"
-                    style="@style/ActionButton"
-                    android:text="@string/action_share" />
-
-                <Button
-                    android:id="@+id/btnMap"
-                    style="@style/ActionButton" />
-
-                <TextView
-                    android:id="@+id/txtTodosTitle"
-                    style="@style/SummaryLabel"
-                    android:layout_marginTop="24dp"
-                    android:text="@string/todos_title" />
+                    <TextView
+                        android:id="@+id/txtTodoCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/sub"
+                        android:textSize="@dimen/text_body"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/todoGroup"
@@ -179,50 +254,147 @@
                     android:orientation="vertical" />
 
                 <TextView
+                    style="@style/Heading"
+                    android:accessibilityHeading="true"
+                    android:text="@string/actions_title"
+                    tools:targetApi="28" />
+
+                <!-- 해당하는 값이 있는 칸만 두 개씩 줄지어 코드에서 넣는다 -->
+                <LinearLayout
+                    android:id="@+id/actionGrid"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="@string/summary_note"
-                    android:textSize="@dimen/text_body" />
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/txtAlarm"
+                    style="@style/Body"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_card"
+                    android:drawablePadding="10dp"
+                    android:elevation="1dp"
+                    android:gravity="center_vertical"
+                    android:padding="14dp"
+                    app:drawableStartCompat="@drawable/ic_bell"
+                    app:drawableTint="@color/accent_text" />
             </LinearLayout>
 
-            <!-- AI에 보낸 글 -->
-            <TextView
-                style="@style/SummaryLabel"
-                android:layout_marginTop="32dp"
-                android:text="@string/original_title" />
-
-            <TextView
-                android:id="@+id/txtOriginal"
+            <!-- 3쪽: 원문 사진, 읽은 글, 참고 안내, 지우기 (요약 실패해도 보인다) -->
+            <LinearLayout
+                android:id="@+id/page3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textIsSelectable="true"
-                android:textSize="@dimen/text_body" />
+                android:orientation="vertical"
+                android:visibility="gone">
 
-            <!-- 요약에 실패한 안내문도 지울 수 있게 요약 묶음 밖에 둔다 -->
-            <Button
-                android:id="@+id/btnDelete"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:minHeight="@dimen/touch_min"
-                android:text="@string/delete_notice"
-                android:textColor="@color/warning_text"
-                android:textSize="@dimen/text_body" />
+                <LinearLayout
+                    android:id="@+id/photoGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/Heading"
+                        android:layout_marginTop="0dp"
+                        android:accessibilityHeading="true"
+                        android:text="@string/photo_title"
+                        tools:targetApi="28" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="2dp">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:id="@+id/imgOriginal"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/photo_small"
+                                android:background="@color/tone_gray_bg"
+                                android:contentDescription="@string/photo_desc"
+                                android:scaleType="centerCrop" />
+
+                            <Button
+                                android:id="@+id/btnPhoto"
+                                style="@style/Button.Light"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom|end"
+                                android:layout_margin="10dp"
+                                android:minHeight="@dimen/touch_min"
+                                android:text="@string/show_photo"
+                                app:icon="@drawable/ic_zoom" />
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <TextView
+                    style="@style/Heading"
+                    android:accessibilityHeading="true"
+                    android:text="@string/original_title"
+                    tools:targetApi="28" />
+
+                <TextView
+                    android:id="@+id/txtOriginal"
+                    style="@style/Body"
+                    android:background="@drawable/bg_card"
+                    android:elevation="1dp"
+                    android:padding="16dp"
+                    android:textIsSelectable="true" />
+
+                <TextView
+                    android:id="@+id/txtNote"
+                    style="@style/Body"
+                    android:layout_marginTop="16dp"
+                    android:paddingHorizontal="4dp"
+                    android:text="@string/summary_note"
+                    android:textColor="@color/sub" />
+
+                <!-- 요약에 실패한 안내문도 지울 수 있게 3쪽에 둔다 -->
+                <Button
+                    android:id="@+id/btnDelete"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="12dp"
+                    android:minHeight="@dimen/touch_min"
+                    android:text="@string/delete_notice"
+                    android:textColor="@color/warning_text"
+                    android:textSize="@dimen/text_body"
+                    android:textStyle="bold"
+                    app:icon="@drawable/ic_trash"
+                    app:iconTint="@color/warning_text" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
-    <Button
-        android:id="@+id/btnHome"
-        style="@style/Widget.Material3.Button.OutlinedButton"
+    <!-- 아래 버튼 두 개. 쪽마다 글자와 하는 일이 바뀐다 -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:minHeight="72dp"
-        android:text="@string/go_home"
-        android:textSize="@dimen/text_body"
-        android:textStyle="bold" />
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp">
+
+        <Button
+            android:id="@+id/btnLeft"
+            style="@style/Button.Light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:minWidth="128dp" />
+
+        <Button
+            android:id="@+id/btnRight"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:iconGravity="textEnd" />
+    </LinearLayout>
 
 </LinearLayout>

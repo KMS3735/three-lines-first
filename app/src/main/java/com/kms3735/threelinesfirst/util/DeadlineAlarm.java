@@ -23,6 +23,8 @@ import com.kms3735.threelinesfirst.ui.ResultActivity;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 마감 3일 전과 당일 아침 9시에 알림을 띄운다.
@@ -49,11 +51,26 @@ public class DeadlineAlarm extends BroadcastReceiver {
         AlarmManager am = context.getSystemService(AlarmManager.class);
         long now = System.currentTimeMillis();
         for (int i = 0; i < DAYS_BEFORE.length; i++) {
-            long at = deadline.minusDays(DAYS_BEFORE[i]).atTime(HOUR, 0)
-                    .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            long at = time(deadline, DAYS_BEFORE[i]);
             if (at <= now) continue;
             am.setWindow(AlarmManager.RTC_WAKEUP, at, WINDOW_MS, pending(context, n.id, i, DAYS_BEFORE[i]));
         }
+    }
+
+    /** 아직 울리지 않은 알림 날짜. 요약 화면의 "아침 9시에 알려 드릴게요" 안내에 쓴다 */
+    public static List<LocalDate> upcomingDays(Notice n) {
+        List<LocalDate> days = new ArrayList<>();
+        if (n.deadline == null || n.deadline.isEmpty()) return days;
+        LocalDate deadline = LocalDate.parse(n.deadline);
+        long now = System.currentTimeMillis();
+        for (int d : DAYS_BEFORE) {
+            if (time(deadline, d) > now) days.add(deadline.minusDays(d));
+        }
+        return days;
+    }
+
+    private static long time(LocalDate deadline, int daysBefore) {
+        return deadline.minusDays(daysBefore).atTime(HOUR, 0).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
     /** 안내문을 지우면 예약도 지운다 */

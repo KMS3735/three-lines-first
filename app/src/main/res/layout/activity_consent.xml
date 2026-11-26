@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 첫 실행 개인정보 동의: 알려 드릴 세 가지를 아이콘 카드로 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_screen"
     android:orientation="vertical"
     tools:context=".ui.ConsentActivity">
 
@@ -16,38 +19,120 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:paddingHorizontal="16dp"
+            android:paddingTop="32dp"
+            android:paddingBottom="16dp">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:accessibilityHeading="true"
+                android:lineSpacingExtra="2dp"
+                android:paddingHorizontal="8dp"
                 android:text="@string/consent_title"
+                android:textColor="@color/ink"
                 android:textSize="@dimen/text_title"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:targetApi="28" />
 
-            <TextView
-                style="@style/ConsentItemTitle"
-                android:text="@string/consent_1_title" />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:layout_marginTop="12dp">
 
-            <TextView
-                style="@style/ConsentItemBody"
-                android:text="@string/consent_1_body" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
 
-            <TextView
-                style="@style/ConsentItemTitle"
-                android:text="@string/consent_2_title" />
+                    <ImageView
+                        style="@style/ConsentIcon"
+                        android:src="@drawable/ic_lock" />
 
-            <TextView
-                style="@style/ConsentItemBody"
-                android:text="@string/consent_2_body" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
 
-            <TextView
-                style="@style/ConsentItemTitle"
-                android:text="@string/consent_3_title" />
+                        <TextView
+                            style="@style/ConsentItemTitle"
+                            android:text="@string/consent_1_title" />
 
-            <TextView
-                style="@style/ConsentItemBody"
-                android:text="@string/consent_3_body" />
+                        <TextView
+                            style="@style/ConsentItemBody"
+                            android:text="@string/consent_1_body" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="2dp"
+                android:layout_marginTop="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
+
+                    <ImageView
+                        style="@style/ConsentIcon"
+                        android:src="@drawable/ic_shield" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/ConsentItemTitle"
+                            android:text="@string/consent_2_title" />
+
+                        <TextView
+                            style="@style/ConsentItemBody"
+                            android:text="@string/consent_2_body" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="2dp"
+                android:layout_marginTop="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="18dp">
+
+                    <ImageView
+                        style="@style/ConsentIcon"
+                        android:backgroundTint="@color/warning_bg"
+                        android:src="@drawable/ic_info"
+                        app:tint="@color/warning_text" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/ConsentItemTitle"
+                            android:text="@string/consent_3_title" />
+
+                        <TextView
+                            style="@style/ConsentItemBody"
+                            android:text="@string/consent_3_body" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </ScrollView>
 
@@ -55,21 +140,21 @@
         android:id="@+id/btnAgree"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:minHeight="72dp"
-        android:text="@string/consent_agree"
-        android:textSize="@dimen/text_body"
-        android:textStyle="bold" />
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/consent_agree" />
 
     <Button
         android:id="@+id/btnDisagree"
         style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="12dp"
         android:minHeight="@dimen/touch_min"
         android:text="@string/consent_disagree"
-        android:textSize="@dimen/text_body" />
+        android:textColor="@color/body"
+        android:textSize="@dimen/text_body"
+        android:textStyle="bold" />
 
 </LinearLayout>

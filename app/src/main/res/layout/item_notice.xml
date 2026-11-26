@@ -1,44 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 안내문 목록 한 칸 (NoticeAdapter의 ViewHolder) -->
+<!-- 안내문 목록 한 칸 (NoticeAdapter의 ViewHolder): 날짜 칸 + 제목 + 남은 날 + 할 일 진행 -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="12dp"
+    android:layout_marginTop="10dp"
     android:clickable="true"
-    android:focusable="true"
-    app:cardCornerRadius="16dp">
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:minHeight="@dimen/touch_min"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:orientation="horizontal"
+        android:paddingVertical="14dp"
+        android:paddingStart="14dp"
+        android:paddingEnd="8dp">
 
-        <!-- 무슨 안내문인지 (세 줄 요약의 첫 줄) -->
-        <TextView
-            android:id="@+id/txtTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/text_summary"
-            android:textStyle="bold" />
+        <!-- 마감 날짜 칸. 색은 남은 날에 따라 코드에서 바꾼다 -->
+        <LinearLayout
+            android:id="@+id/dateTile"
+            android:layout_width="60dp"
+            android:layout_height="64dp"
+            android:layout_marginEnd="14dp"
+            android:background="@drawable/bg_tile"
+            android:gravity="center"
+            android:importantForAccessibility="noHideDescendants"
+            android:orientation="vertical">
 
-        <!-- 마감까지 남은 날 -->
-        <TextView
-            android:id="@+id/txtDeadline"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textSize="@dimen/text_body"
-            android:textStyle="bold" />
+            <TextView
+                android:id="@+id/txtMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp" />
 
-        <!-- 할 일 진행, 원문 대조 경고 -->
-        <TextView
-            android:id="@+id/txtInfo"
-            android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/txtDay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="@dimen/text_body" />
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- 무슨 안내문인지 (세 줄 요약의 첫 줄) -->
+            <TextView
+                android:id="@+id/txtTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="2dp"
+                android:textColor="@color/ink"
+                android:textSize="@dimen/text_body"
+                android:textStyle="bold" />
+
+            <!-- 마감까지 남은 날 -->
+            <TextView
+                android:id="@+id/txtDeadline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="@dimen/text_body"
+                android:textStyle="bold" />
+
+            <!-- 할 일 진행, 원문 대조 경고 -->
+            <TextView
+                android:id="@+id/txtInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:drawablePadding="6dp"
+                android:textColor="@color/sub"
+                android:textSize="@dimen/text_body" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="6dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_chevron_right"
+            app:tint="@color/hint" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

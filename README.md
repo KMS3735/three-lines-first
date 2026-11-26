@@ -135,7 +135,7 @@ app/src/main/java/.../threelinesfirst/
 │   ├── MainActivity.java        # 저장한 안내문 목록
 │   ├── ConsentActivity.java     # 첫 실행 개인정보 동의
 │   ├── CaptureActivity.java     # 촬영 안내, 촬영, 사진·공유로 받기
-│   ├── ResultActivity.java      # 세 줄 요약, 할 일, 원문, 행동 버튼(읽어주기·달력·전화·공유)
+│   ├── ResultActivity.java      # 세 줄 요약 세 쪽(요약 / 할 일·바로 하기 / 원문)
 │   ├── MapActivity.java         # 장소 지도 (내 위치 + 기관 마커)
 │   └── SettingsActivity.java    # 내 모드, 사진 보관, 알림 설정
 ├── ocr/                         # OcrHelper (ML Kit 글자 인식), ReadingOrder (읽는 순서 정렬)
@@ -143,7 +143,7 @@ app/src/main/java/.../threelinesfirst/
 ├── ai/SummaryClient.java        # Gemini API 호출(Retrofit), JSON 변환
 ├── verify/Verifier.java         # 날짜·금액 대조, 마감일·전화번호 추출
 ├── data/                        # Room: AppDatabase, Notice·Todo 엔티티, NoticeDao
-└── util/DeadlineAlarm.java      # 마감일 알림 예약, 다시 켰을 때 다시 예약
+└── util/                        # DeadlineAlarm (마감일 알림 예약), KeepWords (낱말 단위 줄바꿈)
 ```
 
 ### 데이터 저장

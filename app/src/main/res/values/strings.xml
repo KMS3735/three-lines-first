@@ -3,16 +3,32 @@
 
     <!-- 안내문 목록 -->
     <string name="empty_list">아직 찍은 안내문이 없어요.\n아래 버튼을 눌러 안내문을 찍어 보세요.</string>
-    <string name="capture_notice">+ 안내문 찍기</string>
-    <string name="import_photo">사진·캡처 불러오기</string>
+    <string name="capture_notice">안내문 찍기</string>
+    <string name="import_photo">사진 불러오기</string>
+    <string name="greeting_morning">좋은 아침이에요</string>
+    <string name="greeting_afternoon">좋은 오후예요</string>
+    <string name="greeting_evening">편안한 저녁이에요</string>
+    <string name="greeting_line">%1$s · %2$s</string>
+    <string name="headline_count">챙길 안내문이 %d개 있어요</string>
+    <string name="headline_none">지금 챙길 안내문은 없어요</string>
+    <string name="headline_empty">안내문을 찍어 보세요</string>
+    <string name="hero_label">가장 먼저 챙길 일</string>
+    <string name="hero_when">%1$s까지 · %2$s</string>
+    <string name="hero_open">바로 보기</string>
+    <string name="count_urgent">마감 임박</string>
+    <string name="count_active">진행 중</string>
+    <string name="count_passed">마감 지남</string>
+    <string name="list_others">다른 안내문</string>
+    <string name="month">%d월</string>
+    <string name="date_md">%1$d월 %2$d일</string>
     <string name="list_not_summarized">아직 요약하지 못했어요</string>
     <string name="list_tap_to_retry">눌러서 다시 요약해요</string>
-    <string name="deadline_left">마감 %1$s · %2$d일 남았어요</string>
-    <string name="deadline_today">마감 %s · 오늘까지예요</string>
-    <string name="deadline_passed">마감 %s · 지났어요</string>
+    <string name="deadline_left">%d일 남았어요</string>
+    <string name="deadline_today">오늘까지예요</string>
+    <string name="deadline_passed">마감이 지났어요</string>
     <string name="deadline_none">마감일 없음</string>
     <string name="todo_progress">할 일 %1$d개 중 %2$d개 했어요</string>
-    <string name="list_mismatch">원문과 다른 값이 있어요. 원문을 확인하세요</string>
+    <string name="list_mismatch">원문과 다른 값이 있어요</string>
 
     <!-- 촬영 -->
     <string name="capture_tips">• 종이를 평평하게\n• 밝은 곳에서\n• 네 모서리가 틀 안에 보이게</string>
@@ -31,7 +47,15 @@
     <string name="go_back">돌아가기</string>
     <string name="summarize">세 줄로 요약하기</string>
 
-    <!-- 세 줄 요약 -->
+    <!-- 세 줄 요약: 1 요약 · 2 할 일 · 3 원문 세 쪽 -->
+    <string name="back_list">목록</string>
+    <string name="tab_summary">1 요약</string>
+    <string name="tab_todo">2 할 일</string>
+    <string name="tab_original">3 원문</string>
+    <string name="prev">이전</string>
+    <string name="next_todo">다음: 할 일</string>
+    <string name="next_original">다음: 원문 확인</string>
+    <string name="done_to_list">다 봤어요, 목록으로</string>
     <string name="summarizing">세 줄로 줄이는 중이에요…\n잠시만 기다려 주세요.</string>
     <string name="summary_error">요약하지 못했어요.\n인터넷 연결을 확인하고 다시 눌러 주세요.</string>
     <string name="summary_no_key">AI 키가 설정되지 않아 요약할 수 없어요.</string>
@@ -41,26 +65,28 @@
     <string name="label_todo">무엇을 해야 하나요?</string>
     <string name="label_when_where">언제 · 어디서 · 얼마?</string>
     <string name="todos_title">할 일</string>
+    <string name="todo_done_count">%1$d개 중 %2$d개 했어요</string>
+    <string name="actions_title">바로 하기</string>
     <string name="summary_note">요약은 참고용이에요. 효력은 원문을 따르니 중요한 내용은 원문이나 기관에 꼭 확인하세요.</string>
-    <string name="original_title">읽은 글 (개인정보는 가렸어요)</string>
+    <string name="photo_title">찍은 사진</string>
+    <string name="original_title">읽은 글 · 개인정보는 가렸어요</string>
 
     <!-- 원문 대조 -->
     <string name="verified">날짜와 금액을 원문과 맞춰 봤어요.</string>
-    <string name="verify_failed">원문과 다른 날짜·금액이 있어요.\n%s\n원문 사진과 꼭 비교해 보세요.</string>
-    <string name="verify_failed_no_photo">원문과 다른 날짜·금액이 있어요.\n%s\n아래 읽은 글과 꼭 비교해 보세요.</string>
+    <string name="verify_failed">원문과 다른 날짜·금액이 있어요.\n%s\n눌러서 원문 사진과 꼭 비교해 보세요.</string>
+    <string name="verify_failed_no_photo">원문과 다른 날짜·금액이 있어요.\n%s\n눌러서 읽은 글과 꼭 비교해 보세요.</string>
     <string name="verify_note">지난 요약에 안내문에 없는 날짜나 금액(%s)이 있었어. 안내문에 적힌 날짜와 금액만 그대로 옮겨.</string>
-    <string name="show_photo">원문 사진 보기</string>
-    <string name="hide_photo">원문 사진 접기</string>
+    <string name="show_photo">크게 보기</string>
+    <string name="hide_photo">작게 보기</string>
     <string name="photo_desc">찍은 안내문 원문 사진</string>
-    <string name="go_home">처음으로</string>
 
     <!-- 행동 연결 -->
-    <string name="action_speak">소리로 읽어 주기</string>
-    <string name="action_stop_speak">그만 읽기</string>
-    <string name="action_calendar">달력에 마감일 넣기</string>
-    <string name="action_dial">문의 전화 걸기 (%s)</string>
+    <string name="action_speak">듣기</string>
+    <string name="action_stop_speak">그만 듣기</string>
+    <string name="action_calendar">달력에 넣기</string>
+    <string name="action_dial">문의 전화\n%s</string>
     <string name="action_share">가족에게 보내기</string>
-    <string name="action_map">지도에서 보기: %s</string>
+    <string name="action_map">지도에서 보기\n%s</string>
     <string name="tts_unavailable">이 휴대폰에서는 한국어로 읽어 줄 수 없어요. 설정에서 한국어 음성을 받아 주세요.</string>
     <string name="calendar_title">마감: %s</string>
     <string name="share_title">누구에게 보낼까요?</string>
@@ -72,11 +98,14 @@
     <string name="alarm_days_left">마감이 %d일 남았어요</string>
     <string name="alarm_today">오늘이 마감이에요</string>
     <string name="alarm_denied">알림을 허용하지 않아 마감일을 알려 드릴 수 없어요.</string>
+    <string name="alarm_info_one">%s 아침 9시에 알려 드릴게요</string>
+    <string name="alarm_info_two">%1$s과 %2$s 아침 9시에 알려 드릴게요</string>
 
     <!-- 장소 지도 -->
     <string name="map_searching">지도에서 찾는 중이에요…</string>
     <string name="map_found">여기예요.</string>
     <string name="map_not_found">지도에서 \'%s\'을(를) 찾지 못했어요. 안내문의 주소나 문의 전화로 확인해 주세요.</string>
+    <string name="map_call">가기 전에 전화로 묻기</string>
     <string name="delete_notice">이 안내문 지우기</string>
     <string name="delete_title">이 안내문을 지울까요?</string>
     <string name="delete_message">요약, 할 일, 원문 사진이 모두 지워지고 되돌릴 수 없어요.</string>
@@ -94,11 +123,11 @@
 
     <!-- 개인정보 동의 -->
     <string name="consent_title">시작하기 전에\n꼭 알려 드릴 것이 있어요</string>
-    <string name="consent_1_title">1. 사진은 휴대폰 밖으로 나가지 않아요</string>
+    <string name="consent_1_title">사진은 휴대폰 밖으로 나가지 않아요</string>
     <string name="consent_1_body">찍은 사진에서 글자를 읽는 일은 휴대폰 안에서만 해요. 사진은 이 휴대폰에만 저장돼요.</string>
-    <string name="consent_2_title">2. 개인정보를 가린 글만 AI로 보내요</string>
+    <string name="consent_2_title">개인정보를 가린 글만 AI로 보내요</string>
     <string name="consent_2_body">이름, 주민등록번호, 휴대전화, 계좌번호, 주소를 먼저 가린 뒤, 남은 글만 요약을 위해 Google Gemini로 보내요.</string>
-    <string name="consent_3_title">3. 요약은 참고용이에요</string>
+    <string name="consent_3_title">요약은 참고용이에요</string>
     <string name="consent_3_body">효력은 원문을 따릅니다. 중요한 내용은 가족이나 해당 기관에 꼭 확인하세요.</string>
     <string name="consent_agree">동의하고 시작하기</string>
     <string name="consent_disagree">동의하지 않아요</string>

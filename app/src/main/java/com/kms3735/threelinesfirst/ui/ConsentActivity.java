@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.kms3735.threelinesfirst.R;
+import com.kms3735.threelinesfirst.util.KeepWords;
 
 /** 첫 실행 개인정보 동의. 어떤 정보가 외부 AI로 가는지 알리고 동의를 받는다. */
 public class ConsentActivity extends AppCompatActivity {
@@ -26,6 +27,7 @@ public class ConsentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_consent);
+        KeepWords.applyTo(findViewById(R.id.main));
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

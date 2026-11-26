@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 요약 2쪽 "바로 하기"의 한 칸 (ResultActivity가 두 개씩 줄지어 넣는다) -->
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Tile"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_weight="1" />
