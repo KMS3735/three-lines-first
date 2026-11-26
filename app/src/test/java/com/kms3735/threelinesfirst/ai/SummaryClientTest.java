@@ -22,7 +22,8 @@ public class SummaryClientTest {
             + "\"line2_todo\":\"이번 달 관리비를 내셔야 해요.\","
             + "\"line3_when_where\":\"11월 25일까지 152,000원을 은행에서 내요.\","
             + "\"warning\":\"기한이 지나면 연체료가 붙어요.\","
-            + "\"todos\":[\"관리비 내기\",\"\"],\"deadline\":\"2026-11-25\",\"amounts\":[152000]}";
+            + "\"todos\":[\"관리비 내기\",\"\"],\"deadline\":\"2026-11-25\",\"amounts\":[152000],"
+            + "\"phone\":\"02-123-4567\",\"place\":\"\"}";
 
     /** 실제 generateContent 응답과 같은 모양으로 감싼다 */
     private static JsonObject response(String text) {
@@ -38,6 +39,14 @@ public class SummaryClientTest {
         assertEquals("2026-11-25", s.deadline);
         assertEquals(Collections.singletonList(152000L), s.amounts);
         assertEquals(Collections.singletonList("관리비 내기"), s.todos); // 빈 할 일은 뺀다
+    }
+
+    @Test
+    public void 전화와_장소가_빠져도_빈_칸으로_통과() {
+        Summary s = SummaryClient.parse(response(GOOD.replace(",\"phone\":\"02-123-4567\",\"place\":\"\"", "")));
+        assertNotNull(s);
+        assertEquals("", s.phone);
+        assertEquals("", s.place);
     }
 
     @Test
@@ -68,7 +77,7 @@ public class SummaryClientTest {
         JsonObject config = body.getAsJsonObject("generationConfig");
         assertEquals("application/json", config.get("responseMimeType").getAsString());
         JsonArray required = config.getAsJsonObject("responseSchema").getAsJsonArray("required");
-        for (String field : Arrays.asList("line1_what", "line2_todo", "line3_when_where", "warning", "todos", "deadline", "amounts")) {
+        for (String field : Arrays.asList("line1_what", "line2_todo", "line3_when_where", "warning", "todos", "deadline", "amounts", "phone", "place")) {
             assertTrue(field, required.toString().contains("\"" + field + "\""));
         }
     }

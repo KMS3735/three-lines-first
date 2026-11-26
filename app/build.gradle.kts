@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
-// Gemini API 키는 local.properties에만 두고 Git에 올리지 않는다
+// Gemini·지도 API 키는 local.properties에만 두고 Git에 올리지 않는다
 val localProps = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
 }
@@ -23,6 +23,10 @@ android {
         versionName = "0.1"
 
         buildConfigField("String", "GEMINI_API_KEY", "\"${localProps.getProperty("GEMINI_API_KEY", "")}\"")
+        // 지도 키는 매니페스트 메타데이터로 들어가야 한다. 키가 없으면 장소 보기 버튼을 숨긴다
+        val mapsKey = localProps.getProperty("MAPS_API_KEY", "")
+        manifestPlaceholders["MAPS_API_KEY"] = mapsKey
+        buildConfigField("boolean", "HAS_MAPS_KEY", mapsKey.isNotEmpty().toString())
     }
 
     buildFeatures {
@@ -64,5 +68,9 @@ dependencies {
     // 저장: Room (Java라서 ksp 대신 annotationProcessor)
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
+
+    // 장소 지도 보기: 지도와 내 위치
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
 }

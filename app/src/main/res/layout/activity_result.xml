@@ -141,6 +141,31 @@
                     android:textStyle="bold"
                     app:drawableStartCompat="@drawable/ic_warning" />
 
+                <!-- 행동 연결: 해당하는 값이 있을 때만 보인다 -->
+                <Button
+                    android:id="@+id/btnSpeak"
+                    style="@style/ActionButton"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/action_speak" />
+
+                <Button
+                    android:id="@+id/btnCalendar"
+                    style="@style/ActionButton"
+                    android:text="@string/action_calendar" />
+
+                <Button
+                    android:id="@+id/btnDial"
+                    style="@style/ActionButton" />
+
+                <Button
+                    android:id="@+id/btnShare"
+                    style="@style/ActionButton"
+                    android:text="@string/action_share" />
+
+                <Button
+                    android:id="@+id/btnMap"
+                    style="@style/ActionButton" />
+
                 <TextView
                     android:id="@+id/txtTodosTitle"
                     style="@style/SummaryLabel"

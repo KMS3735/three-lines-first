@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 가족에게 보내기: 내부 저장소의 원문 사진만 다른 앱에 잠시 읽게 해 준다 -->
+<paths>
+    <files-path name="photos" path="photos/" />
+</paths>

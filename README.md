@@ -135,7 +135,7 @@ app/src/main/java/.../threelinesfirst/
 │   ├── MainActivity.java        # 저장한 안내문 목록
 │   ├── ConsentActivity.java     # 첫 실행 개인정보 동의
 │   ├── CaptureActivity.java     # 촬영 안내, 촬영, 사진·공유로 받기
-│   ├── ResultActivity.java      # 세 줄 요약, 할 일, 원문, 행동 버튼
+│   ├── ResultActivity.java      # 세 줄 요약, 할 일, 원문, 행동 버튼(읽어주기·달력·전화·공유)
 │   ├── MapActivity.java         # 장소 지도 (내 위치 + 기관 마커)
 │   └── SettingsActivity.java    # 내 모드, 사진 보관, 알림 설정
 ├── ocr/                         # OcrHelper (ML Kit 글자 인식), ReadingOrder (읽는 순서 정렬)
@@ -143,10 +143,7 @@ app/src/main/java/.../threelinesfirst/
 ├── ai/SummaryClient.java        # Gemini API 호출(Retrofit), JSON 변환
 ├── verify/Verifier.java         # 날짜·금액 대조, 마감일·전화번호 추출
 ├── data/                        # Room: AppDatabase, Notice·Todo 엔티티, NoticeDao
-└── util/
-    ├── ActionIntents.java       # 달력 등록, 전화, 공유 인텐트
-    ├── DeadlineAlarm.java       # 마감일 알림
-    └── TtsHelper.java           # 읽어주기
+└── util/DeadlineAlarm.java      # 마감일 알림 예약, 다시 켰을 때 다시 예약
 ```
 
 ### 데이터 저장
@@ -157,6 +154,7 @@ app/src/main/java/.../threelinesfirst/
 | | 세 줄 요약 | `line1What` · `line2Todo` · `line3WhenWhere` · `warning` |
 | | 요약 속 값 | `deadline` · `amounts` |
 | | 대조 결과 | `checkedCount` · `mismatches` |
+| | 행동 연결 | `phone`(원문에 있는 번호만) · `place` |
 | **`todo`** | 할 일 체크박스 | `noticeId` · `content` · `done` |
 
 Room으로 저장하고, DB 작업은 백그라운드 스레드에서 처리합니다. 원문 사진 보관을 끄면 `imagePath` 없이 요약 텍스트만 남습니다.

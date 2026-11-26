@@ -124,7 +124,8 @@ String key = BuildConfig.GEMINI_API_KEY;
 
 안내문에 적힌 기관(행정복지센터, 구청, 검진기관 등)을 지도에 표시해, 어르신이 어디로 가야 하는지 바로 볼 수 있게 합니다.
 
-- AI 요약 결과에 장소 이름(`place`) 칸을 추가하고, `Geocoder`로 장소 이름을 좌표로 바꿉니다.
+- AI 요약 결과에 장소 이름(`place`) 칸을 추가하고, `Geocoder`로 장소 이름을 좌표로 바꿉니다. 직접 가야 하는 곳이 없거나 여러 곳 중 고르는 안내문은 `place`를 비워 버튼을 숨깁니다.
+- 문의 전화(`phone`)도 AI가 옮기되, 숫자가 원문에 그대로 있을 때만 남깁니다(`Verifier.phoneIn`). 글자 인식이 숫자 사이에 공백을 넣어도 숫자만 비교해 찾습니다.
 - `FusedLocationProviderClient.getLastLocation()`으로 현재 위치를 받아, 같은 이름의 기관이 여러 곳이면 가까운 곳을 고릅니다.
 - `SupportMapFragment`에 장소 마커와 내 위치(`setMyLocationEnabled`)를 함께 보여 줍니다.
 - 위치는 기기 안에서 지도 표시에만 쓰고, AI로 보내거나 저장하지 않습니다.
@@ -156,7 +157,11 @@ String key = BuildConfig.GEMINI_API_KEY;
 | **이미지** (`EXTRA_STREAM`) | 내부 저장소로 복사한 뒤 촬영 사진과 같은 방식으로 글자 인식 |
 | **글** (`EXTRA_TEXT`) | 글자 인식 없이 바로 개인정보 가림 단계로 전달 |
 
-마감일 알림은 `AlarmManager.setAndAllowWhileIdle()`(정확하지 않은 알람)로 예약합니다. 3일 전·당일 알림은 몇 분 오차가 있어도 되므로, 별도 권한이 필요한 정확한 알람(`SCHEDULE_EXACT_ALARM`)은 쓰지 않습니다.
+마감일 알림은 마감 3일 전과 당일 오전 9시에 `AlarmManager.setWindow()`로 15분 안에 울리게 예약합니다. 몇 분 오차가 있어도 되므로 별도 권한이 필요한 정확한 알람(`SCHEDULE_EXACT_ALARM`)은 쓰지 않습니다. `set()`이나 `setAndAllowWhileIdle()`은 남은 시간의 75%까지 늦어질 수 있어(2주 뒤 알림이 열흘 넘게 밀림) 쓰지 않습니다.
+
+- 휴대폰을 다시 켜면 예약이 사라지므로 `BOOT_COMPLETED`를 받아 저장된 안내문으로 다시 예약합니다.
+- 알림 글은 인텐트가 아니라 DB에서 읽어, 지운 안내문은 알리지 않고 다른 앱이 가짜 알림 내용을 넣을 수 없게 합니다.
+- 알림을 누르면 그 안내문의 요약 화면이 열립니다.
 
 ## 5. 화면 구성
 
@@ -198,7 +203,7 @@ app/src/main/java/com/kms3735/threelinesfirst/
 │   ├── NoticeAdapter.java       # 목록 RecyclerView 어댑터
 │   ├── ConsentActivity.java     # 첫 실행 개인정보 동의
 │   ├── CaptureActivity.java     # 촬영 안내, 촬영, 사진·공유로 받기, 인식 결과 확인
-│   ├── ResultActivity.java      # 세 줄 요약, 할 일, 원문, 행동 버튼
+│   ├── ResultActivity.java      # 세 줄 요약, 할 일, 원문, 행동 버튼(읽어주기·달력·전화·공유)
 │   ├── MapActivity.java         # 장소 지도: 내 위치 + 기관 마커
 │   └── SettingsActivity.java    # 내 모드, 사진 보관, 알림 설정
 ├── ocr/                         # OcrHelper (ML Kit 글자 인식), ReadingOrder (읽는 순서 정렬)
@@ -212,11 +217,10 @@ app/src/main/java/com/kms3735/threelinesfirst/
 │   ├── Notice.java              # @Entity 안내문 한 건 + 세 줄 요약
 │   ├── Todo.java                # @Entity 할 일 체크박스
 │   └── NoticeDao.java           # @Dao 조회·저장·수정
-└── util/
-    ├── ActionIntents.java       # 달력 등록, 전화, 공유 인텐트
-    ├── DeadlineAlarm.java       # 알림 예약 + BroadcastReceiver
-    └── TtsHelper.java           # TextToSpeech 래퍼
+└── util/DeadlineAlarm.java      # 알림 예약 + BroadcastReceiver (알림, BOOT_COMPLETED)
 ```
+
+달력·전화·공유 인텐트와 `TextToSpeech`는 각각 몇 줄이고 요약 화면에서만 쓰므로 `ResultActivity` 안에 둡니다.
 
 `PrivacyMasker`와 `Verifier`는 안드로이드 API를 쓰지 않는 순수 Java 클래스로 만들어, 기기 없이 JUnit 단위 테스트로 검증합니다.
 
@@ -291,6 +295,7 @@ Room은 SQLite 위에서 동작하는 라이브러리로, `SQLiteOpenHelper` 대
 | | 세 줄 요약 | `line1What` · `line2Todo` · `line3WhenWhere` · `warning` |
 | | 요약 속 값 | `deadline` · `amounts` |
 | | 대조 결과 | `checkedCount` · `mismatches` |
+| | 행동 연결 | `phone`(원문에 있는 번호만) · `place` |
 | **`Todo`** | 할 일 체크박스 | `noticeId` · `content` · `done` |
 
 ```java

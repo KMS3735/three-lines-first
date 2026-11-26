@@ -123,4 +123,14 @@ public class VerifierTest {
         assertEquals(0, r.checked);
         assertFalse(Verifier.check("안내문", summary("5천원을 내요.", ""), TODAY).passed());
     }
+
+    @Test
+    public void 전화번호는_원문에_있는_번호만_남긴다() throws IOException {
+        // 글자 인식이 숫자 사이에 공백을 넣은 번호도 찾는다 (sample01: 02-1 23-4567)
+        assertEquals("02-123-4567", Verifier.phoneIn(ocr(1), "02-123-4567"));
+        assertEquals("02-555-0129", Verifier.phoneIn(ocr(5), "02-555-0129"));
+        assertEquals("", Verifier.phoneIn(ocr(1), "02-999-8888"));   // 원문에 없는 번호
+        assertEquals("", Verifier.phoneIn(ocr(1), "123"));           // 너무 짧음
+        assertEquals("", Verifier.phoneIn(ocr(1), ""));
+    }
 }

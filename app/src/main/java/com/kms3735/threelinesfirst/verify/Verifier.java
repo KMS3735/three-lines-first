@@ -57,6 +57,17 @@ public final class Verifier {
     private Verifier() {
     }
 
+    /**
+     * AI가 옮긴 전화번호의 숫자가 원문에 그대로 있으면 그 번호를, 없으면 빈 문자열을 돌려준다.
+     * 글자 인식이 숫자 사이에 공백을 넣어도(02-1 23-4567) 숫자만 비교하므로 찾는다
+     */
+    public static String phoneIn(String original, String phone) {
+        if (phone == null) return "";
+        String digits = phone.replaceAll("\\D", "");
+        if (digits.length() < 8) return "";
+        return original.replaceAll("\\D", "").contains(digits) ? phone.trim() : "";
+    }
+
     public static Result check(String original, Summary s, LocalDate today) {
         Dates origin = new Dates(original);
         Set<Long> originAmounts = amounts(original);

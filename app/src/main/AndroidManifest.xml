@@ -7,6 +7,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- 장소 지도에 내 위치 표시. 처음 지도를 열 때 묻고, 거절해도 장소는 보여 준다 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="false"
@@ -16,6 +19,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ThreeLinesFirst">
+        <!-- 지도 키는 local.properties에서 읽어 빌드 때 넣는다 -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
         <activity
             android:name=".ui.MainActivity"
             android:exported="true">
@@ -33,6 +41,9 @@
             android:name=".ui.ResultActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.MapActivity"
+            android:exported="false" />
         <!-- 다른 앱의 공유 목록에 나타나도록 이미지와 글을 받는다 -->
         <activity
             android:name=".ui.CaptureActivity"
@@ -47,6 +58,27 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
+
+        <!-- 마감일 알림과, 휴대폰을 다시 켰을 때 알림 다시 예약.
+             시스템의 BOOT_COMPLETED를 받으려고 exported지만, 알림 내용은 DB에서만 읽는다 -->
+        <receiver
+            android:name=".util.DeadlineAlarm"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 가족에게 보내기: 원문 사진을 받는 앱이 잠시 읽을 수 있게 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

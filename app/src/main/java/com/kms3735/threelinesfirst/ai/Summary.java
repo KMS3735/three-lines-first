@@ -15,6 +15,10 @@ public class Summary {
     public String deadline;
     /** 원 단위 금액 */
     public List<Long> amounts;
+    /** 문의할 기관 전화번호. 없으면 빈 문자열 */
+    public String phone;
+    /** 직접 찾아가야 하는 기관 이름 (지도 검색용). 없으면 빈 문자열 */
+    public String place;
 
     /** 형식 검사: 세 줄은 비어 있으면 안 되고, 나머지 칸도 빠지면 안 된다 */
     boolean isValid() {

@@ -44,6 +44,8 @@ public class SummaryClient {
             + "- todos: 해야 할 일을 짧은 체크 항목으로 1~3개 (예: 관리비 내기)\n"
             + "- deadline: 가장 중요한 마감일을 YYYY-MM-DD로. 연도가 없으면 오늘 날짜를 기준으로 정하고, 마감일이 없으면 빈 문자열\n"
             + "- amounts: 내야 하거나 받는 금액을 원 단위 정수로. 없으면 빈 배열\n"
+            + "- phone: 문의할 기관 전화번호를 02-123-4567처럼. [휴대전화]처럼 가린 번호는 넣지 말고, 없으면 빈 문자열\n"
+            + "- place: 받은 사람이 직접 가야 하는 곳이 있으면 지도에서 찾을 수 있는 기관 이름 (예: 종로구 보건소). 없거나 여러 곳 중 고르는 경우는 빈 문자열\n"
             + "규칙:\n"
             + "- 한 문장은 40자 안팎으로, 쉬운 말과 '~해요' 말투로 써. 문장 속 금액은 152,000원처럼 쉼표를 넣어.\n"
             + "- 안내문에 없는 내용은 지어내지 마. 날짜와 금액은 안내문에 적힌 값을 그대로 옮겨.\n"
@@ -57,9 +59,11 @@ public class SummaryClient {
             + "\"warning\":{\"type\":\"STRING\"},"
             + "\"todos\":{\"type\":\"ARRAY\",\"items\":{\"type\":\"STRING\"}},"
             + "\"deadline\":{\"type\":\"STRING\"},"
-            + "\"amounts\":{\"type\":\"ARRAY\",\"items\":{\"type\":\"INTEGER\"}}},"
-            + "\"required\":[\"line1_what\",\"line2_todo\",\"line3_when_where\",\"warning\",\"todos\",\"deadline\",\"amounts\"],"
-            + "\"propertyOrdering\":[\"line1_what\",\"line2_todo\",\"line3_when_where\",\"warning\",\"todos\",\"deadline\",\"amounts\"]}";
+            + "\"amounts\":{\"type\":\"ARRAY\",\"items\":{\"type\":\"INTEGER\"}},"
+            + "\"phone\":{\"type\":\"STRING\"},"
+            + "\"place\":{\"type\":\"STRING\"}},"
+            + "\"required\":[\"line1_what\",\"line2_todo\",\"line3_when_where\",\"warning\",\"todos\",\"deadline\",\"amounts\",\"phone\",\"place\"],"
+            + "\"propertyOrdering\":[\"line1_what\",\"line2_todo\",\"line3_when_where\",\"warning\",\"todos\",\"deadline\",\"amounts\",\"phone\",\"place\"]}";
 
     private final GeminiApi api;
     private final String key;
@@ -163,6 +167,9 @@ public class SummaryClient {
             Summary summary = new Gson().fromJson(json, Summary.class);
             if (summary == null || !summary.isValid()) return null;
             summary.todos.removeIf(t -> t == null || t.trim().isEmpty());
+            // 전화·장소는 없어도 요약은 쓸 수 있으니 빠지면 빈 칸으로 둔다
+            if (summary.phone == null) summary.phone = "";
+            if (summary.place == null) summary.place = "";
             return summary;
         } catch (RuntimeException e) {
             // 칸이 없거나(NullPointer), JSON이 깨졌거나(JsonParseException), 숫자가 아닌 경우

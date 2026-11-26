@@ -53,6 +53,30 @@
     <string name="hide_photo">원문 사진 접기</string>
     <string name="photo_desc">찍은 안내문 원문 사진</string>
     <string name="go_home">처음으로</string>
+
+    <!-- 행동 연결 -->
+    <string name="action_speak">소리로 읽어 주기</string>
+    <string name="action_stop_speak">그만 읽기</string>
+    <string name="action_calendar">달력에 마감일 넣기</string>
+    <string name="action_dial">문의 전화 걸기 (%s)</string>
+    <string name="action_share">가족에게 보내기</string>
+    <string name="action_map">지도에서 보기: %s</string>
+    <string name="tts_unavailable">이 휴대폰에서는 한국어로 읽어 줄 수 없어요. 설정에서 한국어 음성을 받아 주세요.</string>
+    <string name="calendar_title">마감: %s</string>
+    <string name="share_title">누구에게 보낼까요?</string>
+    <string name="share_footer">세 줄 먼저로 요약했어요. 효력은 원문을 따르니 원문 사진도 함께 봐 주세요.</string>
+    <string name="no_app">이 일을 할 앱이 휴대폰에 없어요.</string>
+
+    <!-- 마감일 알림 -->
+    <string name="alarm_channel">마감일 알림</string>
+    <string name="alarm_days_left">마감이 %d일 남았어요</string>
+    <string name="alarm_today">오늘이 마감이에요</string>
+    <string name="alarm_denied">알림을 허용하지 않아 마감일을 알려 드릴 수 없어요.</string>
+
+    <!-- 장소 지도 -->
+    <string name="map_searching">지도에서 찾는 중이에요…</string>
+    <string name="map_found">여기예요.</string>
+    <string name="map_not_found">지도에서 \'%s\'을(를) 찾지 못했어요. 안내문의 주소나 문의 전화로 확인해 주세요.</string>
     <string name="delete_notice">이 안내문 지우기</string>
     <string name="delete_title">이 안내문을 지울까요?</string>
     <string name="delete_message">요약, 할 일, 원문 사진이 모두 지워지고 되돌릴 수 없어요.</string>

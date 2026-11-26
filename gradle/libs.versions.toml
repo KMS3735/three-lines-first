@@ -10,6 +10,8 @@ mlkitKorean = "16.0.1"
 retrofit = "3.0.0"
 room = "2.8.5"
 recyclerview = "1.4.0"
+playServicesMaps = "20.1.0"
+playServicesLocation = "21.4.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -26,6 +28,8 @@ retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", ver
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

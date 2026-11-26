@@ -1,15 +1,24 @@
 package com.kms3735.threelinesfirst.ui;
 
+import android.Manifest;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.ClipData;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.CalendarContract;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -18,10 +27,14 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -34,18 +47,22 @@ import com.kms3735.threelinesfirst.data.AppDatabase;
 import com.kms3735.threelinesfirst.data.Notice;
 import com.kms3735.threelinesfirst.data.NoticeDao;
 import com.kms3735.threelinesfirst.data.Todo;
+import com.kms3735.threelinesfirst.util.DeadlineAlarm;
 import com.kms3735.threelinesfirst.verify.Verifier;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * ③ 세 줄 요약: 개인정보를 가린 글을 AI로 요약해 세 줄, 경고, 할 일 체크박스로 보여 준다.
  * 요약 속 날짜·금액은 원문과 대조해, 다르면 한 번 다시 요약하고 그래도 다르면 경고 배지를 붙인다.
  * 안내문은 Room에 저장돼 있고, 이미 요약한 안내문은 AI를 다시 부르지 않고 저장된 요약을 보여 준다.
+ * ④ 행동 연결: 읽어 주기, 달력, 전화, 가족에게 보내기, 장소 지도. 달력·전화·공유는 다른 앱에 맡겨 권한이 필요 없다.
  */
 public class ResultActivity extends AppCompatActivity {
 
@@ -57,7 +74,7 @@ public class ResultActivity extends AppCompatActivity {
     private static final int DAILY_LIMIT = 30;
 
     private TextView txtStatus, txtVerify, txtLine1, txtLine2, txtLine3, txtWarning, txtTodosTitle;
-    private Button btnRetry, btnPhoto;
+    private Button btnRetry, btnPhoto, btnSpeak, btnCalendar, btnDial, btnShare, btnMap;
     private ImageView imgOriginal;
     private View summaryGroup;
     private LinearLayout todoGroup;
@@ -71,6 +88,16 @@ public class ResultActivity extends AppCompatActivity {
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
     /** 대조에 실패해 이미 한 번 다시 요약했는지 */
     private boolean resummarized;
+
+    private TextToSpeech tts;
+    /** 한국어 음성이 준비됐는지. 처음 누를 때 엔진을 켠다 */
+    private boolean ttsReady;
+
+    /** 마감일 알림을 띄우려면 Android 13부터 권한이 필요하다. 거절해도 요약은 그대로 쓴다 */
+    private final ActivityResultLauncher<String> notificationPermission =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                if (!granted) Toast.makeText(this, R.string.alarm_denied, Toast.LENGTH_LONG).show();
+            });
 
     private final SummaryClient.Callback callback = new SummaryClient.Callback() {
         @Override
@@ -107,6 +134,18 @@ public class ResultActivity extends AppCompatActivity {
         txtWarning = findViewById(R.id.txtWarning);
         txtTodosTitle = findViewById(R.id.txtTodosTitle);
         todoGroup = findViewById(R.id.todoGroup);
+        btnSpeak = findViewById(R.id.btnSpeak);
+        btnCalendar = findViewById(R.id.btnCalendar);
+        btnDial = findViewById(R.id.btnDial);
+        btnShare = findViewById(R.id.btnShare);
+        btnMap = findViewById(R.id.btnMap);
+
+        btnSpeak.setOnClickListener(v -> speak());
+        btnCalendar.setOnClickListener(v -> addToCalendar());
+        btnDial.setOnClickListener(v -> open(new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + notice.phone))));
+        btnShare.setOnClickListener(v -> share());
+        btnMap.setOnClickListener(v -> startActivity(new Intent(this, MapActivity.class)
+                .putExtra(MapActivity.EXTRA_PLACE, notice.place)));
 
         btnPhoto.setOnClickListener(v -> {
             if (imgOriginal.getVisibility() == View.VISIBLE) hidePhoto();
@@ -185,11 +224,22 @@ public class ResultActivity extends AppCompatActivity {
         // 저장해야 할 일의 id가 생기므로, 저장한 뒤 다시 읽어 보여 준다
         new Thread(() -> {
             dao.saveSummary(notice, todos);
+            DeadlineAlarm.schedule(this, notice);
             List<Todo> saved = dao.getTodos(notice.id);
             uiHandler.post(() -> {
-                if (!isDestroyed()) showSummary(saved);
+                if (isDestroyed()) return;
+                showSummary(saved);
+                askNotificationPermission();
             });
         }).start();
+    }
+
+    /** 마감일이 있는 안내문을 처음 요약했을 때만 묻는다 */
+    private void askNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= 33 && !notice.deadline.isEmpty()
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS);
+        }
     }
 
     private void showStatus(int messageRes, boolean canRetry) {
@@ -230,6 +280,108 @@ public class ResultActivity extends AppCompatActivity {
             todoGroup.addView(box);
         }
         txtTodosTitle.setVisibility(todos.isEmpty() ? View.GONE : View.VISIBLE);
+
+        // 해당하는 값이 있을 때만 버튼을 보여 준다
+        boolean hasDeadline = n.deadline != null && !n.deadline.isEmpty();
+        boolean hasPhone = n.phone != null && !n.phone.isEmpty();
+        boolean hasPlace = n.place != null && !n.place.isEmpty() && BuildConfig.HAS_MAPS_KEY;
+        btnCalendar.setVisibility(hasDeadline ? View.VISIBLE : View.GONE);
+        btnDial.setVisibility(hasPhone ? View.VISIBLE : View.GONE);
+        if (hasPhone) btnDial.setText(getString(R.string.action_dial, n.phone));
+        btnMap.setVisibility(hasPlace ? View.VISIBLE : View.GONE);
+        if (hasPlace) btnMap.setText(getString(R.string.action_map, n.place));
+    }
+
+    /** 세 줄과 주의할 점을 천천히 읽어 준다. 읽는 중에 누르면 멈춘다 */
+    private void speak() {
+        if (tts == null) {
+            tts = new TextToSpeech(this, status -> {
+                ttsReady = status == TextToSpeech.SUCCESS
+                        && tts.setLanguage(Locale.KOREAN) >= TextToSpeech.LANG_AVAILABLE;
+                if (ttsReady) speakSummary();
+                else Toast.makeText(this, R.string.tts_unavailable, Toast.LENGTH_LONG).show();
+            });
+            tts.setSpeechRate(0.9f);
+            tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                @Override
+                public void onStart(String id) {
+                }
+
+                @Override
+                public void onDone(String id) {
+                    uiHandler.post(() -> btnSpeak.setText(R.string.action_speak));
+                }
+
+                @Override
+                public void onError(String id) {
+                    uiHandler.post(() -> btnSpeak.setText(R.string.action_speak));
+                }
+            });
+            return;
+        }
+        if (!ttsReady) {
+            Toast.makeText(this, R.string.tts_unavailable, Toast.LENGTH_LONG).show();
+        } else if (tts.isSpeaking()) {
+            tts.stop();
+            btnSpeak.setText(R.string.action_speak);
+        } else {
+            speakSummary();
+        }
+    }
+
+    private void speakSummary() {
+        String text = notice.line1What + "\n" + notice.line2Todo + "\n" + notice.line3WhenWhere;
+        if (notice.warning != null && !notice.warning.trim().isEmpty()) text += "\n" + notice.warning;
+        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "summary");
+        btnSpeak.setText(R.string.action_stop_speak);
+    }
+
+    /** 달력 앱의 새 일정 화면을 채워 연다. 저장은 사용자가 달력 앱에서 누른다 */
+    private void addToCalendar() {
+        long begin = LocalDate.parse(notice.deadline).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        open(new Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI)
+                .putExtra(CalendarContract.Events.TITLE, getString(R.string.calendar_title, notice.line1What))
+                .putExtra(CalendarContract.Events.DESCRIPTION, notice.line2Todo + "\n" + notice.line3WhenWhere)
+                .putExtra(CalendarContract.EXTRA_EVENT_ALL_DAY, true)
+                .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, begin)
+                .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, begin + 24 * 60 * 60 * 1000L));
+    }
+
+    /** 세 줄 요약 글과 원문 사진을 가족에게 보낸다. 받는 앱과 사람은 사용자가 고른다 */
+    private void share() {
+        StringBuilder text = new StringBuilder()
+                .append(notice.line1What).append('\n')
+                .append(notice.line2Todo).append('\n')
+                .append(notice.line3WhenWhere);
+        if (notice.warning != null && !notice.warning.trim().isEmpty()) text.append('\n').append(notice.warning);
+        text.append("\n\n").append(getString(R.string.share_footer));
+
+        Intent send = new Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_TEXT, text.toString());
+        if (photoPath != null) {
+            Uri photo = FileProvider.getUriForFile(this, getPackageName() + ".files", new File(photoPath));
+            send.setType("image/*")
+                    .putExtra(Intent.EXTRA_STREAM, photo)
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            send.setClipData(ClipData.newRawUri("", photo));
+        } else {
+            send.setType("text/plain");
+        }
+        open(Intent.createChooser(send, getString(R.string.share_title)));
+    }
+
+    /** 다른 앱을 연다. 해당 앱이 없으면 안내만 한다 */
+    private void open(Intent intent) {
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, R.string.no_app, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (tts != null) tts.shutdown();
     }
 
     /** 통과면 초록 체크, 다르면 주황 경고와 함께 원문 사진을 펼친다. 대조할 값이 없으면 숨긴다 */
@@ -264,6 +416,7 @@ public class ResultActivity extends AppCompatActivity {
                     Notice n = notice;
                     new Thread(() -> {
                         dao.delete(n); // 할 일은 CASCADE로 함께 지워진다
+                        DeadlineAlarm.cancel(this, n.id);
                         if (n.imagePath != null) new File(n.imagePath).delete();
                         uiHandler.post(this::finish);
                     }).start();

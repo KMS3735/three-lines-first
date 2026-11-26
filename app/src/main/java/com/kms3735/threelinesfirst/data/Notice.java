@@ -37,6 +37,11 @@ public class Notice {
     /** 원문과 다른 값을 ", "로 이음. 통과면 빈 문자열 */
     public String mismatches;
 
+    /** 문의 전화. 원문에 있는 번호만 남긴다 */
+    public String phone;
+    /** 지도에서 찾을 기관 이름 */
+    public String place;
+
     public boolean isSummarized() {
         return line1What != null;
     }
@@ -56,5 +61,7 @@ public class Notice {
         amounts = sb.toString();
         checkedCount = r.checked;
         mismatches = String.join(", ", r.mismatches);
+        phone = Verifier.phoneIn(maskedText == null ? "" : maskedText, s.phone);
+        place = s.place == null ? "" : s.place.trim();
     }
 }

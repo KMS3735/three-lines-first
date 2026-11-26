@@ -22,6 +22,10 @@ public interface NoticeDao {
     @Query("SELECT * FROM notice WHERE id = :id")
     Notice get(long id);
 
+    /** 다시 켠 뒤 마감일 알림을 다시 예약할 때 */
+    @Query("SELECT * FROM notice WHERE deadline IS NOT NULL AND deadline != ''")
+    List<Notice> getWithDeadline();
+
     @Query("SELECT * FROM todo WHERE noticeId = :noticeId ORDER BY id")
     List<Todo> getTodos(long noticeId);
 
