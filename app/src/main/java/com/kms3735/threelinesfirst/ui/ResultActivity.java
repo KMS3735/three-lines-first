@@ -267,13 +267,22 @@ public class ResultActivity extends BaseActivity {
             t.content = content;
             todos.add(t);
         }
+        // 사진 보관을 껐으면 요약한 뒤 원문 사진을 지운다. 원문과 다른 값이 있으면 비교할 수 있게 남긴다
+        String photo = notice.imagePath;
+        boolean dropPhoto = photo != null && result.passed() && !SettingsActivity.keepPhoto(this);
+        if (dropPhoto) notice.imagePath = null;
         // 저장해야 할 일의 id가 생기므로, 저장한 뒤 다시 읽어 보여 준다
         new Thread(() -> {
             dao.saveSummary(notice, todos);
+            if (dropPhoto) new File(photo).delete();
             DeadlineAlarm.schedule(this, notice);
             List<Todo> saved = dao.getTodos(notice.id);
             uiHandler.post(() -> {
                 if (isDestroyed()) return;
+                if (dropPhoto) {
+                    photoPath = null;
+                    findViewById(R.id.photoGroup).setVisibility(View.GONE);
+                }
                 showSummary(saved);
                 askNotificationPermission();
             });

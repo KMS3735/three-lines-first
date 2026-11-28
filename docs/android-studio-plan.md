@@ -173,7 +173,7 @@ String key = BuildConfig.GEMINI_API_KEY;
 | **③ 세 줄 요약** | `ResultActivity`<br>`activity_result.xml` | 세 쪽으로 나눠 위쪽 탭과 아래 버튼으로 넘김<br>1 요약: 대조 배지, 번호 붙은 세 줄 카드, 경고, 듣기<br>3 원문: 원문 사진(크게 보기), 가린 글, 지우기 |
 | **④ 행동 연결** | `ResultActivity` 2쪽<br>`item_todo.xml` · `item_tile.xml` | 할 일 체크박스<br>바로 하기 칸: 달력 · 문의 전화 · 가족에게 보내기 · 지도<br>마감일 알림 안내 |
 | **장소 지도** | `MapActivity`<br>`activity_map.xml` | `SupportMapFragment`<br>기관 마커, 내 위치<br>아래 판: 주소, 가기 전에 전화로 묻기 |
-| **설정** | `SettingsActivity`<br>`activity_settings.xml` | 큰 글씨·쉬운 말 스위치, 알림 설정 열기 |
+| **설정** | `SettingsActivity`<br>`activity_settings.xml` | 큰 글씨·쉬운 말·원문 사진 보관 스위치, 알림 설정 열기 |
 
 **화면 이동 흐름**
 
@@ -208,7 +208,7 @@ app/src/main/java/com/kms3735/threelinesfirst/
 │   ├── CaptureActivity.java     # 촬영 안내, 촬영, 사진·공유로 받기, 인식 결과 확인
 │   ├── ResultActivity.java      # 세 줄 요약 세 쪽(요약 / 할 일·바로 하기 / 원문), 읽어주기·달력·전화·공유
 │   ├── MapActivity.java         # 장소 지도: 내 위치 + 기관 마커
-│   └── SettingsActivity.java    # 큰 글씨, 쉬운 말, 알림 설정
+│   └── SettingsActivity.java    # 큰 글씨, 쉬운 말, 사진 보관, 알림 설정
 ├── ocr/                         # OcrHelper (ML Kit 글자 인식), ReadingOrder (읽는 순서 정렬)
 ├── privacy/PrivacyMasker.java   # 개인정보 가림 (정규식)
 ├── ai/
@@ -348,7 +348,7 @@ Retrofit(`enqueue`)과 ML Kit(`Task` 콜백)은 라이브러리가 알아서 백
 **내부 저장소**
 
 - 원문 사진은 앱 내부 저장소(`getFilesDir()`)에만 저장합니다. 다른 앱이 접근할 수 없고, 앱을 지우면 함께 지워집니다.
-- 사진 보관을 끄면 요약 후 파일을 지우고 `imagePath`를 비웁니다.
+- 사진 보관을 끄면 요약 후 파일을 지우고 `imagePath`를 비웁니다. 단, 날짜·금액이 원문과 다른 안내문은 사진과 비교할 수 있게 남깁니다.
 - 가린 텍스트(`maskedText`)만 저장하고, 가리기 전 원문 텍스트는 저장하지 않습니다.
 - 요약하지 않고 촬영 화면을 나가면 찍은 사진을 지우고, 안내문을 지우면 원문 사진도 함께 지웁니다.
 - `allowBackup="false"`이고 `data_extraction_rules.xml`에서 클라우드 백업과 기기 간 이전을 모두 막아, 사진과 요약이 휴대폰 밖으로 복사되지 않습니다.

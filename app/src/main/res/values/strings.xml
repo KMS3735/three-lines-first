@@ -123,6 +123,8 @@
     <string name="settings_large_desc">모든 화면의 글씨를 더 크게 보여 줘요.</string>
     <string name="settings_easy">쉬운 말</string>
     <string name="settings_easy_desc">어려운 말을 풀어서 더 쉽게 요약해요. 다음에 요약하는 안내문부터 적용돼요. 이미 요약한 안내문은 요약 화면에서 \'이해가 안 돼요\'를 눌러 주세요.</string>
+    <string name="settings_photo">원문 사진 보관</string>
+    <string name="settings_photo_desc">끄면 요약한 뒤 찍은 사진을 지워요. 날짜나 금액이 원문과 다른 안내문은 비교할 수 있게 사진을 남겨요.</string>
     <string name="settings_alarm">마감일 알림</string>
     <string name="settings_alarm_desc">마감 3일 전과 마감 날 아침 9시에 알려 드려요. 알림을 켜고 끄는 것은 휴대폰 설정에서 해요.</string>
     <string name="settings_alarm_open">알림 설정 열기</string>
