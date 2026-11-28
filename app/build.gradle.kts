@@ -20,7 +20,7 @@ android {
         minSdk = 26
         targetSdk = 37
         versionCode = 1
-        versionName = "0.1"
+        versionName = "1.0"
 
         buildConfigField("String", "GEMINI_API_KEY", "\"${localProps.getProperty("GEMINI_API_KEY", "")}\"")
         // 지도 키는 매니페스트 메타데이터로 들어가야 한다. 키가 없으면 장소 보기 버튼을 숨긴다
