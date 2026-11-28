@@ -2,7 +2,7 @@
 
 **받은 공공 안내문을 찍거나 공유하면, 해야 할 일이 맨 위에 보이는 안드로이드 앱**
 
-종이 안내문을 촬영하거나, 문자·카카오톡·전자고지로 받은 온라인 안내문을 공유하면 AI가 **무슨 안내인지 · 해야 할 일 · 언제까지·얼마·어디서** 세 줄과 **"안 하면"** 경고 한 줄, 할 일 체크박스로 정리해 줍니다. 요약 속 날짜와 금액은 원문과 코드로 한 번 더 대조하고, 읽은 뒤에는 달력 등록 · 전화 · 가족 공유까지 버튼 하나로 이어집니다.
+종이 안내문을 촬영하거나, 문자·카카오톡·전자고지로 받은 온라인 안내문을 공유하면 AI가 **무슨 안내인지 · 해야 할 일 · 언제까지·얼마·어디서** 세 줄과 **"안 하면"** 경고 한 줄, 할 일 체크박스로 정리해 줍니다. 요약 속 날짜와 금액은 원문과 코드로 한 번 더 대조하고, 읽은 뒤에는 달력 등록 · 전화 · 가족에게 보내기까지 버튼 하나로 이어집니다.
 
 > 현재 개발 중인 프로젝트입니다. 아래 기능과 구조는 구현 목표를 기준으로 작성했습니다.
 > 프로젝트 계획서: [docs/project-plan.pdf](docs/project-plan.pdf)
@@ -36,7 +36,7 @@
 | **결과 형식** | 매번 길이와 구성이 다른 긴 답변 | **항상 같은 세 줄 + 경고 + 할 일** |
 | **정확성 확인** | 사용자가 스스로 판단 | **날짜·금액 자동 대조, 원문 함께 표시** |
 | **개인정보** | 사진 전체가 외부로 전송 | **기기 안에서 가린 텍스트만 전송** |
-| **읽은 다음** | 사용자가 기억하고 처리 | **달력 · 전화 · 가족 공유 · 알림** |
+| **읽은 다음** | 사용자가 기억하고 처리 | **달력 · 전화 · 가족에게 보내기 · 알림** |
 | **화면** | 일반 글씨 크기 | **큰 글씨 · 고대비 · 음성 읽어주기** |
 
 ## 세 줄 형식
@@ -110,7 +110,6 @@
   <img src="https://img.shields.io/badge/Gemini%20API-8E75B2?style=flat-square&logo=googlegemini&logoColor=white" alt="Gemini API">
   <img src="https://img.shields.io/badge/Room-4CAF50?style=flat-square&logo=sqlite&logoColor=white" alt="Room">
   <img src="https://img.shields.io/badge/Retrofit-48B983?style=flat-square&logo=square&logoColor=white" alt="Retrofit">
-  <img src="https://img.shields.io/badge/Firebase-DD2C00?style=flat-square&logo=firebase&logoColor=white" alt="Firebase">
   <img src="https://img.shields.io/badge/Google%20Maps-4285F4?style=flat-square&logo=googlemaps&logoColor=white" alt="Google Maps">
 </p>
 
@@ -125,7 +124,6 @@
 | **백그라운드** | Thread · Handler | DB 작업, 화면 갱신 |
 | **알림 · 행동** | AlarmManager · TextToSpeech · 암시적 인텐트 | 마감일 알림, 읽어주기, 달력·전화·공유 |
 | **위치 · 지도** | Fused Location Provider · Google Maps SDK · Geocoder | 내 위치와 가야 할 기관을 지도에 표시 |
-| **가족 공유** | Firebase Authentication · Cloud Firestore | 자녀 계정에 요약 공유 |
 
 ## 프로젝트 구조 (예정)
 
@@ -173,8 +171,7 @@ Room으로 저장하고, DB 작업은 백그라운드 스레드에서 처리합�
    GEMINI_API_KEY=발급받은_키
    ```
 3. 장소 지도를 쓰려면 [Google Cloud 콘솔](https://console.cloud.google.com/)에서 Maps SDK for Android를 켜고 키를 발급받아, 같은 파일에 `MAPS_API_KEY=발급받은_지도_키`로 추가합니다.
-4. 가족 자동 공유를 쓰려면 [Firebase 콘솔](https://console.firebase.google.com/)에서 Android 앱을 등록하고 `google-services.json`을 `app/` 폴더에 넣습니다.
-5. 카메라 기능을 쓰려면 에뮬레이터 대신 실제 안드로이드 기기에서 실행하는 것을 권장합니다.
+4. 카메라 기능을 쓰려면 에뮬레이터 대신 실제 안드로이드 기기에서 실행하는 것을 권장합니다.
 
 ## 개인정보 보호
 

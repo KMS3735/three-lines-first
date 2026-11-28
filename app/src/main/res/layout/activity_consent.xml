@@ -50,6 +50,7 @@
 
                     <ImageView
                         style="@style/ConsentIcon"
+                        android:importantForAccessibility="no"
                         android:src="@drawable/ic_lock" />
 
                     <LinearLayout
@@ -82,6 +83,7 @@
 
                     <ImageView
                         style="@style/ConsentIcon"
+                        android:importantForAccessibility="no"
                         android:src="@drawable/ic_shield" />
 
                     <LinearLayout
@@ -114,6 +116,7 @@
 
                     <ImageView
                         style="@style/ConsentIcon"
+                        android:importantForAccessibility="no"
                         android:backgroundTint="@color/warning_bg"
                         android:src="@drawable/ic_info"
                         app:tint="@color/warning_text" />

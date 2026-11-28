@@ -48,18 +48,12 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.4.0")
     implementation("com.google.android.gms:play-services-maps:20.1.0")
 
-    // 가족 자동 공유 (추가 범위에서 연결)
-    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-firestore")
-
     testImplementation("junit:junit:4.13.2")
 }
 ```
 
 - 버전은 계획 작성 시점 기준이며, 개발 시작 시 Android Studio가 안내하는 최신 안정 버전으로 맞춥니다.
 - Room: 앱을 Java로만 작성하므로 `ksp` 플러그인 없이 `annotationProcessor`로 Room 컴파일러를 연결합니다.
-- Firebase는 추가 범위(가족 공유)에서 연결합니다. 필수 범위 개발 단계에서는 Firebase 의존성과 `google-services` 플러그인 없이 진행합니다.
 
 ## 3. API 키 관리
 
@@ -378,7 +372,7 @@ Retrofit(`enqueue`)과 ML Kit(`Task` 콜백)은 라이브러리가 알아서 백
 | 4 | 필수 | `Verifier` + 단위 테스트<br>재요약과 경고 배지, 원문 나란히 보기 | 날짜를 틀린 요약에 경고 배지가 붙음 |
 | 5 | 필수 | Room 저장, 안내문 목록 화면 | 앱을 다시 켜도 목록과 체크 상태 유지 |
 | 6 | 추가 | 읽어주기, 달력 등록, 전화 걸기<br>가족에게 보내기, 마감일 알림<br>장소 지도 보기 (현재 위치 + 기관 마커) | 버튼마다 해당 앱이 열리고 알림 예약<br>안내문의 기관이 지도에 표시됨 |
-| 7 | 추가 | 쉬운 말·큰 글씨 모드, "이해가 안 돼요"<br>Firebase 가족 공유 (Authentication + Cloud Firestore) | 설정이 모든 문서에 적용됨<br>가족 휴대폰에 요약이 바로 나타남 |
+| 7 | 추가 | 쉬운 말·큰 글씨 모드, "이해가 안 돼요"<br>설정 화면 (큰 글씨·쉬운 말·사진 보관·알림) | 설정이 모든 문서에 적용됨 |
 | 8 | 마무리 | 샘플로 정확도·접근성 점검<br>서명된 APK 빌드 | 실기기에서 전체 흐름이 동작함 |
 
 ## 10. 테스트와 빌드
@@ -390,3 +384,17 @@ Retrofit(`enqueue`)과 ML Kit(`Task` 콜백)은 라이브러리가 알아서 백
 | **에뮬레이터** | 화면 배치와 설정 확인용<br>카메라 촬영과 글자 인식은 실제 기기 사용 |
 | **로그 확인** | **Logcat**에서 `SummaryClient`, `Verifier` 태그로 AI 응답과 대조 결과 확인 |
 | **APK 빌드** | **Build → Generate Signed App Bundle / APK → APK**<br>keystore 파일은 Git에 올리지 않음 (`*.jks`는 `.gitignore`에 포함) |
+
+### 점검 결과 (2026-11-28, 에뮬레이터 API 30)
+
+샘플 안내문 5종을 사진 불러오기로 넣어 글자 인식 → 개인정보 가림 → 요약 → 대조까지 끝까지 실행했습니다. 정답은 안내문을 만들 때 적어 둔 마감일·금액·개인정보 목록입니다.
+
+| 샘플 | 마감일 | 금액 | 원문 대조 | 개인정보 |
+| --- | --- | --- | --- | --- |
+| 관리비 고지서 | 2026-11-25 맞음 | 152,000원 맞음 | 통과 | 이름·계좌 모두 가림 |
+| 건강검진 안내문 | 2026-12-31 맞음 | 0원 맞음 | 통과 | 이름·주민번호·주소·휴대전화 모두 가림 |
+| 자동차세 고지서 | 2026-12-31 맞음 | 130,000·39,000·169,000원 맞음 | 통과 | 이름·계좌 모두 가림 |
+| 과태료 사전통지서 | 2026-11-20 맞음 (위반일 10-12는 마감일로 고르지 않음) | 40,000·32,000원 맞음 | 통과 | 이름·계좌 모두 가림 |
+| 기초연금 신청안내 | 2026-11-28 맞음 (신청 시작일 11-01은 마감일로 고르지 않음) | 342,510원 맞음 | 통과 | 이름·계좌 모두 가림 |
+
+접근성은 Android lint의 접근성 검사(이미지 설명, 글자 크기 단위 등)에서 경고 0개입니다. 장식용 아이콘은 화면 낭독기가 건너뛰게 했고, 버튼은 높이 48dp 이상, 본문은 20sp 이상(큰 글씨 28sp)입니다.

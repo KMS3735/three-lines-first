@@ -10,7 +10,7 @@
     android:orientation="vertical"
     tools:context=".ui.ResultActivity">
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnList"
         style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
@@ -39,17 +39,17 @@
         android:orientation="horizontal"
         android:padding="4dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/tab1"
             style="@style/Tab"
             android:text="@string/tab_summary" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/tab2"
             style="@style/Tab"
             android:text="@string/tab_todo" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/tab3"
             style="@style/Tab"
             android:text="@string/tab_original" />
@@ -83,7 +83,7 @@
                     android:textColor="@color/ink"
                     android:textStyle="bold" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRetry"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -222,7 +222,7 @@
                     app:drawableStartCompat="@drawable/ic_warning" />
 
                 <!-- 요약이 어려우면 더 쉬운 말로 다시 요약 -->
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEasier"
                     style="@style/Button.Light"
                     android:layout_width="match_parent"
@@ -339,7 +339,7 @@
                                 android:contentDescription="@string/photo_desc"
                                 android:scaleType="centerCrop" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btnPhoto"
                                 style="@style/Button.Light"
                                 android:layout_width="wrap_content"
@@ -376,7 +376,7 @@
                     android:textColor="@color/sub" />
 
                 <!-- 요약에 실패한 안내문도 지울 수 있게 3쪽에 둔다 -->
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDelete"
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="wrap_content"
@@ -403,7 +403,7 @@
         android:paddingTop="8dp"
         android:paddingBottom="16dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLeft"
             style="@style/Button.Light"
             android:layout_width="wrap_content"
@@ -411,7 +411,7 @@
             android:layout_marginEnd="10dp"
             android:minWidth="128dp" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRight"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
