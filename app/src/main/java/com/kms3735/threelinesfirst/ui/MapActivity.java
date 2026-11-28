@@ -20,7 +20,6 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -44,7 +43,7 @@ import java.util.Locale;
  * 같은 이름의 기관이 여러 곳이면 내 위치에서 가장 가까운 곳을 고른다.
  * 위치는 지도 표시에만 쓰고 AI로 보내거나 저장하지 않는다. 위치 권한을 거절해도 장소는 보여 준다.
  */
-public class MapActivity extends AppCompatActivity {
+public class MapActivity extends BaseActivity {
 
     public static final String EXTRA_PLACE = "place";
     /** 안내문의 문의 전화. 있으면 "가기 전에 전화로 묻기" 버튼을 보여 준다 */
@@ -66,7 +65,6 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_map);
-        KeepWords.applyTo(findViewById(R.id.main));
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

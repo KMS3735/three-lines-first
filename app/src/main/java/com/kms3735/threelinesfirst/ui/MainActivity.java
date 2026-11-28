@@ -18,7 +18,6 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -43,7 +42,7 @@ import java.util.Locale;
  * ① 안내문 목록. Room에서 읽어 마감이 가까운 순으로 보여 준다.
  * 마감이 남은 것 중 가장 가까운 안내문은 위쪽 파란 카드로 따로 꺼내 보여 준다.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private NoticeAdapter adapter;
     private TextView txtEmpty, txtHeadline, txtOthers, txtHeroTitle, txtHeroWhen;
@@ -74,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        KeepWords.applyTo(findViewById(R.id.main));
+        findViewById(R.id.btnSettings).setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

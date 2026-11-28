@@ -132,12 +132,13 @@
 ```
 app/src/main/java/.../threelinesfirst/
 ├── ui/
+│   ├── BaseActivity.java        # 모든 화면의 부모: 큰 글씨, 낱말 단위 줄바꿈
 │   ├── MainActivity.java        # 저장한 안내문 목록
 │   ├── ConsentActivity.java     # 첫 실행 개인정보 동의
 │   ├── CaptureActivity.java     # 촬영 안내, 촬영, 사진·공유로 받기
 │   ├── ResultActivity.java      # 세 줄 요약 세 쪽(요약 / 할 일·바로 하기 / 원문)
 │   ├── MapActivity.java         # 장소 지도 (내 위치 + 기관 마커)
-│   └── SettingsActivity.java    # 내 모드, 사진 보관, 알림 설정
+│   └── SettingsActivity.java    # 큰 글씨, 쉬운 말, 알림 설정
 ├── ocr/                         # OcrHelper (ML Kit 글자 인식), ReadingOrder (읽는 순서 정렬)
 ├── privacy/PrivacyMasker.java   # 개인정보 가림
 ├── ai/SummaryClient.java        # Gemini API 호출(Retrofit), JSON 변환

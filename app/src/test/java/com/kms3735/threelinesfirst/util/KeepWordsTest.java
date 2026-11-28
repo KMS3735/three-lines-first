@@ -1,6 +1,8 @@
 package com.kms3735.threelinesfirst.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -15,5 +17,13 @@ public class KeepWordsTest {
     public void keepsSurrogatePairsTogether() {
         String emoji = "📅";
         assertEquals("가⁠" + emoji, KeepWords.join("가" + emoji));
+    }
+
+    @Test
+    public void joiningTwiceChangesNothing() {
+        String once = KeepWords.join("챙길 안내문이 2개 있어요");
+        assertEquals(once, KeepWords.join(once));
+        assertTrue(KeepWords.needsJoin("있어요"));
+        assertFalse(KeepWords.needsJoin(once));
     }
 }

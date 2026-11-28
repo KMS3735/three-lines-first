@@ -17,7 +17,6 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
@@ -31,7 +30,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.kms3735.threelinesfirst.R;
-import com.kms3735.threelinesfirst.util.KeepWords;
 import com.kms3735.threelinesfirst.data.AppDatabase;
 import com.kms3735.threelinesfirst.data.Notice;
 import com.kms3735.threelinesfirst.ocr.OcrHelper;
@@ -47,7 +45,7 @@ import java.io.OutputStream;
  * ② 촬영 안내: 가이드 틀 위에서 촬영하고, 기기 안에서 글자를 읽어 결과를 보여 준다.
  * 사진 불러오기(Intent data)나 다른 앱의 공유(ACTION_SEND)로 들어오면 카메라를 건너뛴다.
  */
-public class CaptureActivity extends AppCompatActivity {
+public class CaptureActivity extends BaseActivity {
 
     private static final String TAG = "CaptureActivity";
 
@@ -94,7 +92,6 @@ public class CaptureActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_capture);
-        KeepWords.applyTo(findViewById(R.id.main));
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

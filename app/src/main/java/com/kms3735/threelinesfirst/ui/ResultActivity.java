@@ -38,7 +38,6 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -74,7 +73,7 @@ import java.util.Locale;
  * 안내문은 Room에 저장돼 있고, 이미 요약한 안내문은 AI를 다시 부르지 않고 저장된 요약을 보여 준다.
  * ④ 행동 연결: 읽어 주기, 달력, 전화, 가족에게 보내기, 장소 지도. 달력·전화·공유는 다른 앱에 맡겨 권한이 필요 없다.
  */
-public class ResultActivity extends AppCompatActivity {
+public class ResultActivity extends BaseActivity {
 
     private static final String TAG = "ResultActivity";
 
@@ -106,6 +105,8 @@ public class ResultActivity extends AppCompatActivity {
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
     /** 대조에 실패해 이미 한 번 다시 요약했는지 */
     private boolean resummarized;
+    /** 지금 요청이 쉬운 말인지. 대조에 실패해 다시 요약할 때도 그대로 쓴다 */
+    private boolean easy;
 
     private TextToSpeech tts;
     /** 한국어 음성이 준비됐는지. 처음 누를 때 엔진을 켠다 */
@@ -134,7 +135,6 @@ public class ResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_result);
-        KeepWords.applyTo(findViewById(R.id.main));
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -189,6 +189,7 @@ public class ResultActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.txtSummaryHeading)).setText(heading);
         btnPhoto.setOnClickListener(v -> togglePhotoSize());
         btnRetry.setOnClickListener(v -> summarize());
+        findViewById(R.id.btnEasier).setOnClickListener(v -> summarizeEasier());
         showPage(0);
 
         findViewById(R.id.btnDelete).setOnClickListener(v -> confirmDelete());
@@ -224,6 +225,16 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     private void summarize() {
+        summarize(SettingsActivity.easyMode(this), null);
+    }
+
+    /** "이해가 안 돼요": 지난 요약을 알려 주고 더 쉬운 말로 다시 요약한다 */
+    private void summarizeEasier() {
+        String last = notice.line1What + " " + notice.line2Todo + " " + notice.line3WhenWhere;
+        summarize(true, getString(R.string.easier_note, last));
+    }
+
+    private void summarize(boolean easy, String note) {
         if (BuildConfig.GEMINI_API_KEY.isEmpty()) {
             showStatus(R.string.summary_no_key, false);
             return;
@@ -232,9 +243,10 @@ public class ResultActivity extends AppCompatActivity {
             showStatus(R.string.summary_limit, false);
             return;
         }
-        showStatus(R.string.summarizing, false);
+        showStatus(note != null ? R.string.summarizing_easier : R.string.summarizing, false);
         resummarized = false;
-        client.summarize(maskedText, LocalDate.now(), callback);
+        this.easy = easy;
+        client.summarize(maskedText, LocalDate.now(), note, easy, callback);
     }
 
     /** 날짜·금액을 원문과 대조한다. 다르면 한 번만 다시 요약한다 (하루 횟수에는 세지 않음) */
@@ -244,7 +256,7 @@ public class ResultActivity extends AppCompatActivity {
             resummarized = true;
             Log.d(TAG, "원문과 다름, 다시 요약: " + result.mismatches);
             String note = getString(R.string.verify_note, String.join(", ", result.mismatches));
-            client.summarize(maskedText, LocalDate.now(), note, callback);
+            client.summarize(maskedText, LocalDate.now(), note, easy, callback);
             return;
         }
         notice.apply(summary, result);

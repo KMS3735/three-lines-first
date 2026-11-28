@@ -2,6 +2,7 @@ package com.kms3735.threelinesfirst.ai;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -66,8 +67,18 @@ public class SummaryClientTest {
     }
 
     @Test
+    public void 쉬운_말이면_규칙에_쉬운_말_조건이_붙는다() {
+        assertFalse(systemText(SummaryClient.buildRequest("안내", LocalDate.of(2026, 11, 10), null, false)).contains(SummaryClient.EASY_RULE));
+        assertTrue(systemText(SummaryClient.buildRequest("안내", LocalDate.of(2026, 11, 10), null, true)).contains(SummaryClient.EASY_RULE));
+    }
+
+    private static String systemText(JsonObject body) {
+        return body.getAsJsonObject("systemInstruction").getAsJsonArray("parts").get(0).getAsJsonObject().get("text").getAsString();
+    }
+
+    @Test
     public void 요청에_가린_글과_오늘_날짜와_JSON_형식이_들어간다() {
-        JsonObject body = SummaryClient.buildRequest("[이름] 님 관리비 안내", LocalDate.of(2026, 11, 10), "11월 30일은 원문에 없어");
+        JsonObject body = SummaryClient.buildRequest("[이름] 님 관리비 안내", LocalDate.of(2026, 11, 10), "11월 30일은 원문에 없어", false);
         String userText = body.getAsJsonArray("contents").get(0).getAsJsonObject()
                 .getAsJsonArray("parts").get(0).getAsJsonObject().get("text").getAsString();
         assertTrue(userText.contains("2026-11-10"));

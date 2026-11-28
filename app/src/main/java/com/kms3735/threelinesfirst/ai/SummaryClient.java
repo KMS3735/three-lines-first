@@ -52,6 +52,10 @@ public class SummaryClient {
             + "- [이름], [주소], [계좌번호] 같은 표시는 개인정보를 가린 것이니 추측하지 마.\n"
             + "- 글자 인식 과정에서 글자가 조금 틀렸을 수 있으니 문맥으로 읽어.";
 
+    /** 쉬운 말 모드와 "이해가 안 돼요"에서 규칙에 덧붙인다 */
+    static final String EASY_RULE = "\n- 아주 쉬운 말로 써. 납부, 체납, 수급, 대상자 같은 어려운 행정 용어와 한자어는"
+            + " '내다', '못 낸 돈', '받는 사람'처럼 풀어 쓰고, 초등학생도 알아듣게 짧게 써.";
+
     private static final String SCHEMA = "{\"type\":\"OBJECT\",\"properties\":{"
             + "\"line1_what\":{\"type\":\"STRING\"},"
             + "\"line2_todo\":{\"type\":\"STRING\"},"
@@ -80,14 +84,13 @@ public class SummaryClient {
                 .create(GeminiApi.class);
     }
 
-    /** 결과는 메인 스레드의 callback으로 돌아온다 */
-    public void summarize(String maskedText, LocalDate today, Callback callback) {
-        summarize(maskedText, today, null, callback);
-    }
-
-    /** note: 다시 요약할 때 덧붙이는 주의 사항 (예: 원문에 없던 날짜). 없으면 null */
-    public void summarize(String maskedText, LocalDate today, String note, Callback callback) {
-        request(buildRequest(maskedText, today, note), callback, 1);
+    /**
+     * 결과는 메인 스레드의 callback으로 돌아온다.
+     * note: 다시 요약할 때 덧붙이는 주의 사항 (예: 원문에 없던 날짜). 없으면 null
+     * easy: 더 쉬운 말로 (쉬운 말 모드, "이해가 안 돼요")
+     */
+    public void summarize(String maskedText, LocalDate today, String note, boolean easy, Callback callback) {
+        request(buildRequest(maskedText, today, note, easy), callback, 1);
     }
 
     private void request(JsonObject body, Callback callback, int retriesLeft) {
@@ -124,9 +127,9 @@ public class SummaryClient {
         });
     }
 
-    static JsonObject buildRequest(String maskedText, LocalDate today, String note) {
+    static JsonObject buildRequest(String maskedText, LocalDate today, String note, boolean easy) {
         JsonObject body = new JsonObject();
-        body.add("systemInstruction", content(PROMPT));
+        body.add("systemInstruction", content(easy ? PROMPT + EASY_RULE : PROMPT));
 
         String text = "오늘 날짜: " + today + "\n\n[안내문]\n" + maskedText;
         if (note != null) text += "\n\n[다시 확인]\n" + note;

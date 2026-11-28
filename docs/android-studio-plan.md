@@ -173,7 +173,7 @@ String key = BuildConfig.GEMINI_API_KEY;
 | **③ 세 줄 요약** | `ResultActivity`<br>`activity_result.xml` | 세 쪽으로 나눠 위쪽 탭과 아래 버튼으로 넘김<br>1 요약: 대조 배지, 번호 붙은 세 줄 카드, 경고, 듣기<br>3 원문: 원문 사진(크게 보기), 가린 글, 지우기 |
 | **④ 행동 연결** | `ResultActivity` 2쪽<br>`item_todo.xml` · `item_tile.xml` | 할 일 체크박스<br>바로 하기 칸: 달력 · 문의 전화 · 가족에게 보내기 · 지도<br>마감일 알림 안내 |
 | **장소 지도** | `MapActivity`<br>`activity_map.xml` | `SupportMapFragment`<br>기관 마커, 내 위치<br>아래 판: 주소, 가기 전에 전화로 묻기 |
-| **설정** | `SettingsActivity`<br>`activity_settings.xml` | 쉬운 말, 큰 글씨, 사진 보관, 알림 스위치 |
+| **설정** | `SettingsActivity`<br>`activity_settings.xml` | 큰 글씨·쉬운 말 스위치, 알림 설정 열기 |
 
 **화면 이동 흐름**
 
@@ -189,10 +189,10 @@ Activity 사이에는 Room DB의 `notice_id`만 `Intent` extra로 넘기고, 화
 
 **접근성 기준을 레이아웃에 적용하는 방법**
 
-- `res/values/dimens.xml`에 본문 20sp, 큰 글씨 28sp를 정의하고, 큰 글씨 모드가 켜져 있으면 화면을 열 때 TextView 크기를 28sp로 바꿔 적용
+- `res/values/dimens.xml`에 본문 20sp를 정의하고, 큰 글씨 모드가 켜져 있으면 모든 화면의 부모 `BaseActivity`가 글자 배율(fontScale)을 1.4배로 키워 본문이 28sp가 됨. 휴대폰 설정의 글자 크기 위에 곱하므로 사용자가 고른 크기도 살아 있음
 - 모든 버튼 `android:minHeight="48dp"`, 아이콘과 글자를 함께 표시
 - 아이콘 버튼과 이미지에 `android:contentDescription` 지정
-- 한국어를 낱말 단위로 줄바꿈: Android 13 이상은 테마의 `lineBreakWordStyle=phrase`, 그 아래는 `KeepWords`가 낱말 안 글자 사이에 보이지 않는 WORD JOINER(U+2060)를 넣어 "안내문이 / 에요."처럼 끊기지 않게 함
+- 한국어를 낱말 단위로 줄바꿈: Android 13 이상은 테마의 `lineBreakWordStyle=phrase`, 그 아래는 `KeepWords`가 낱말 안 글자 사이에 보이지 않는 WORD JOINER(U+2060)를 넣어 "안내문이 / 에요."처럼 끊기지 않게 함. 코드에서 나중에 넣은 글도 `BaseActivity`가 그리기 직전에 한꺼번에 적용
 - 색은 `values/colors.xml`과 `values-night/colors.xml`에 같은 이름으로 두어 어두운 모드에서도 대비를 유지
 - Android Studio의 **Layout Inspector**와 **Accessibility Scanner** 앱으로 터치 영역과 대비를 점검
 
@@ -201,13 +201,14 @@ Activity 사이에는 Room DB의 `notice_id`만 `Intent` extra로 넘기고, 화
 ```
 app/src/main/java/com/kms3735/threelinesfirst/
 ├── ui/
+│   ├── BaseActivity.java        # 모든 화면의 부모: 큰 글씨, 낱말 단위 줄바꿈
 │   ├── MainActivity.java        # 저장한 안내문 목록
 │   ├── NoticeAdapter.java       # 목록 RecyclerView 어댑터
 │   ├── ConsentActivity.java     # 첫 실행 개인정보 동의
 │   ├── CaptureActivity.java     # 촬영 안내, 촬영, 사진·공유로 받기, 인식 결과 확인
 │   ├── ResultActivity.java      # 세 줄 요약 세 쪽(요약 / 할 일·바로 하기 / 원문), 읽어주기·달력·전화·공유
 │   ├── MapActivity.java         # 장소 지도: 내 위치 + 기관 마커
-│   └── SettingsActivity.java    # 내 모드, 사진 보관, 알림 설정
+│   └── SettingsActivity.java    # 큰 글씨, 쉬운 말, 알림 설정
 ├── ocr/                         # OcrHelper (ML Kit 글자 인식), ReadingOrder (읽는 순서 정렬)
 ├── privacy/PrivacyMasker.java   # 개인정보 가림 (정규식)
 ├── ai/

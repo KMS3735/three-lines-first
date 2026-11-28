@@ -220,6 +220,16 @@
                     android:textSize="@dimen/text_body"
                     android:textStyle="bold"
                     app:drawableStartCompat="@drawable/ic_warning" />
+
+                <!-- 요약이 어려우면 더 쉬운 말로 다시 요약 -->
+                <Button
+                    android:id="@+id/btnEasier"
+                    style="@style/Button.Light"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/easier"
+                    app:icon="@drawable/ic_info" />
             </LinearLayout>
 
             <!-- 2쪽: 할 일 체크, 바로 하기 칸, 알림 안내 -->

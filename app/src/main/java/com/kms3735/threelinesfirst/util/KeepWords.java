@@ -1,6 +1,7 @@
 package com.kms3735.threelinesfirst.util;
 
 import android.os.Build;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,29 +26,59 @@ public final class KeepWords {
         return join(s);
     }
 
-    /** 레이아웃에 적어 둔 글(동의 화면 설명, 항목 이름 등)에도 적용한다. setContentView 다음에 부른다 */
-    public static void applyTo(View v) {
+    /**
+     * 화면의 모든 글에 적용한다. 레이아웃에 적은 글뿐 아니라 코드에서 나중에 넣은 글도
+     * 그리기 직전에 찾아 고치므로, 글을 넣는 곳마다 따로 챙기지 않아도 된다 (BaseActivity에서 부른다)
+     */
+    public static void watch(View root) {
         if (Build.VERSION.SDK_INT >= 33) return;
+        // 고친 글이 있으면 이번 그리기를 건너뛰고 바뀐 줄바꿈으로 다시 그린다
+        root.getViewTreeObserver().addOnPreDrawListener(() -> !applyTo(root));
+    }
+
+    /** 고친 글이 있으면 true */
+    private static boolean applyTo(View v) {
+        boolean changed = false;
         if (v instanceof ViewGroup) {
             ViewGroup g = (ViewGroup) v;
-            for (int i = 0; i < g.getChildCount(); i++) applyTo(g.getChildAt(i));
+            for (int i = 0; i < g.getChildCount(); i++) changed |= applyTo(g.getChildAt(i));
         } else if (v instanceof TextView && !(v instanceof EditText)) {
             TextView t = (TextView) v;
-            // 복사할 수 있는 원문 글과 꾸밈이 들어간 글은 그대로 둔다
-            if (!t.isTextSelectable() && !(t.getText() instanceof Spanned)) t.setText(join(t.getText().toString()));
+            // 복사할 수 있는 원문 글은 그대로 둔다 (복사한 글에 보이지 않는 글자가 섞이지 않게)
+            if (!t.isTextSelectable() && needsJoin(t.getText())) {
+                t.setText(join(t.getText()));
+                changed = true;
+            }
         }
+        return changed;
+    }
+
+    static boolean needsJoin(CharSequence s) {
+        for (int i = 1; i < s.length(); i++) if (joinable(s, i)) return true;
+        return false;
+    }
+
+    /** 꾸밈(색, 크기)이 들어간 글은 꾸밈을 지킨 채 넣는다 */
+    static CharSequence join(CharSequence s) {
+        if (!(s instanceof Spanned)) return join(s.toString());
+        SpannableStringBuilder b = new SpannableStringBuilder(s);
+        for (int i = b.length() - 1; i > 0; i--) if (joinable(b, i)) b.insert(i, String.valueOf(WORD_JOINER));
+        return b;
     }
 
     static String join(String s) {
         StringBuilder b = new StringBuilder(s.length() * 2);
         for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (i > 0 && !Character.isWhitespace(c) && !Character.isWhitespace(s.charAt(i - 1))
-                    && !Character.isLowSurrogate(c)) {
-                b.append(WORD_JOINER);
-            }
-            b.append(c);
+            if (i > 0 && joinable(s, i)) b.append(WORD_JOINER);
+            b.append(s.charAt(i));
         }
         return b.toString();
+    }
+
+    /** i번째 글자 앞에 넣어야 하는지: 같은 낱말 안이고, 이미 넣지 않았고, 이모지 같은 두 칸 글자의 가운데가 아닐 때 */
+    private static boolean joinable(CharSequence s, int i) {
+        char c = s.charAt(i), p = s.charAt(i - 1);
+        return !Character.isWhitespace(c) && !Character.isWhitespace(p)
+                && c != WORD_JOINER && p != WORD_JOINER && !Character.isLowSurrogate(c);
     }
 }

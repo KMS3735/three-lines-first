@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ⑤ 설정: 큰 글씨, 쉬운 말, 마감일 알림을 카드 하나씩 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_screen"
+    android:orientation="vertical"
+    tools:context=".ui.SettingsActivity">
+
+    <Button
+        android:id="@+id/btnBack"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:minHeight="@dimen/touch_min"
+        android:paddingStart="4dp"
+        android:text="@string/back_list"
+        android:textColor="@color/accent_text"
+        android:textSize="@dimen/text_body"
+        android:textStyle="bold"
+        app:icon="@drawable/ic_chevron_left"
+        app:iconPadding="2dp"
+        app:iconSize="26dp"
+        app:iconTint="@color/accent_text" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:accessibilityHeading="true"
+                android:paddingHorizontal="4dp"
+                android:text="@string/settings_title"
+                android:textColor="@color/ink"
+                android:textSize="@dimen/text_title"
+                android:textStyle="bold"
+                tools:targetApi="28" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="2dp"
+                android:layout_marginTop="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchLarge"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="@dimen/touch_min"
+                        android:text="@string/settings_large"
+                        android:textColor="@color/ink"
+                        android:textSize="@dimen/text_heading"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        style="@style/Body"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/settings_large_desc"
+                        android:textColor="@color/sub" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="2dp"
+                android:layout_marginTop="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchEasy"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="@dimen/touch_min"
+                        android:text="@string/settings_easy"
+                        android:textColor="@color/ink"
+                        android:textSize="@dimen/text_heading"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        style="@style/Body"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/settings_easy_desc"
+                        android:textColor="@color/sub" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="2dp"
+                android:layout_marginTop="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_alarm"
+                        android:textColor="@color/ink"
+                        android:textSize="@dimen/text_heading"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        style="@style/Body"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/settings_alarm_desc"
+                        android:textColor="@color/sub" />
+
+                    <Button
+                        android:id="@+id/btnAlarm"
+                        style="@style/Button.Light"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/settings_alarm_open"
+                        app:icon="@drawable/ic_bell" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
